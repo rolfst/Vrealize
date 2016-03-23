@@ -1,0 +1,20 @@
+---
+  env:
+    node: true
+    mocha: true
+  extends:
+    - "defaults/rules/eslint/best-practices/walmart"
+    - "defaults/rules/eslint/errors/airbnb"
+    - "defaults/configurations/walmart/es5-node"
+    - "defaults/rules/eslint/es6/off"
+  rules:
+    quotes: [2, "single"]
+    linebreak-style: [2, "unix"]
+    "filenames/filenames": [2, "^[a-z\\_\\.]+$"]
+    func-style: [2, "declaration"]
+    # test lint rules
+    max-nested-callbacks: [2, 10]
+    no-magic-numbers: [0]
+    global-require: [0]
+    no-loop-func: [0]
+    max-len: [0]

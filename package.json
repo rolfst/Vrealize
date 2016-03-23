@@ -1,0 +1,37 @@
+{
+  "name": "vpc-connector",
+  "version": "1.0.4",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "NODE_ENV=development node .",
+    "test": "npm run lint && NODE_ENV=test istanbul cover _mocha -- --recursive -R spec",
+    "coverage": "istanbul check-coverage",
+    "lint": "eslint .",
+    "//": "CI related items",
+    "ci-lint": "eslint . -f checkstyle > reports/lint-result.xml ; exit 0",
+    "ci-test": "NODE_ENV=test istanbul cover _mocha --dir ./reports/coverage --report html --report clover --print none -- --recursive -R tap > reports/unit-result.tap || :",
+    "clean-reports": "rm -rf reports ; mkdir reports",
+    "dep-check": "dependency-check ."
+  },
+  "author": "Rolf Strijdhorst<rolf.strijdhorst@itility.nl>",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.2.2",
+    "convict": "^1.0.2",
+    "lodash": "^4.3.0",
+    "logger-facade-console-plugin-nodejs": "0.0.3",
+    "logger-facade-nodejs": "0.0.3",
+    "zmq-service-suite-service": "^0.3.0"
+  },
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "dependency-check": "^2.5.1",
+    "eslint": "^1.10.3",
+    "eslint-config-defaults": "^9.0.0",
+    "eslint-plugin-filenames": "^0.2.0",
+    "istanbul": "^0.4.2",
+    "mocha": "^2.3.4",
+    "zmq-service-suite-client": "^0.0.4"
+  }
+}
