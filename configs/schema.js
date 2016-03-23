@@ -43,6 +43,22 @@ module.exports = {
     }
   },
   vpcConfig: {
-
-  },
+    baseUrl: {
+      doc: 'Base url to kpn vpc',
+      format: String,
+      default: 'https://vpc.kpnvdc.nl'
+    },
+    tenant: {
+      doc: 'Name of the tenant in vpc',
+      format: String,
+      default: 'ManagedServices'},
+    username: {
+      doc: 'Base url to kpn vpc',
+      format: String,
+      default: 'ManagedServices'},
+    password: {
+      doc: 'Base url to kpn vpc',
+      format: String,
+      default: 'WD683??ii184'}
+  }
 };
