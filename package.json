@@ -19,19 +19,27 @@
   "dependencies": {
     "bluebird": "^3.2.2",
     "convict": "^1.0.2",
-    "lodash": "^4.3.0",
+    "lodash": "^3.10.1",
     "logger-facade-console-plugin-nodejs": "0.0.3",
     "logger-facade-nodejs": "0.0.3",
+    "moment": "^2.10.6",
+    "mongoose": "^4.3.1",
+    "request": "^2.69.0",
     "zmq-service-suite-service": "^0.3.0"
   },
   "devDependencies": {
     "chai": "^3.4.1",
+    "chai-as-promised": "^5.3.0",
     "dependency-check": "^2.5.1",
     "eslint": "^1.10.3",
     "eslint-config-defaults": "^9.0.0",
     "eslint-plugin-filenames": "^0.2.0",
     "istanbul": "^0.4.2",
     "mocha": "^2.3.4",
-    "zmq-service-suite-client": "^0.0.4"
+    "mocha-mongoose": "^1.1.1",
+    "sinon": "^1.17.3",
+    "sinon-as-promised": "^4.0.0",
+    "sinon-chai": "^2.8.0",
+    "zmq-service-suite-client": "0.0.6"
   }
 }

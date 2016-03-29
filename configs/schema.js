@@ -42,6 +42,18 @@ module.exports = {
       default: '%time | %logger::%level - %msg'
     }
   },
+  database: {
+    uri: {
+      doc: 'Mongoose Database URI',
+      format: String,
+      default: 'mongodb://localhost/vpc',
+      env: 'DB_URI'
+    },
+    log: {
+      doc: 'Mongoose Debug Log Active',
+      default: true
+    }
+  },
   vpcConfig: {
     baseUrl: {
       doc: 'Base url to kpn vpc',
