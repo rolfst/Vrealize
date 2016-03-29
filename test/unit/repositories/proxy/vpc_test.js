@@ -31,7 +31,7 @@ describe('vpc proxy', function () {
             username: data.username,
             expiry: data.expiry,
             token: data.token,
-            createdAt: moment(data.createdAt).toISOString()
+            createdAt: data.createdAt
           };
         })
         .then(function () {
@@ -47,10 +47,10 @@ describe('vpc proxy', function () {
     });
     it('should find token', function (done) {
       should.exist(token);
-      logger.debug('%j', token);
       repoHelper.findById(token.id, function (e, data) {
         data.username.should.equal(expected.username);
-        data.expiry.should.equal(expected.expiry);
+        var expiryDate = moment(data.expiry).toISOString();
+        expiryDate.should.equal(moment(expected.expiry).toISOString());
         done();
       });
     });

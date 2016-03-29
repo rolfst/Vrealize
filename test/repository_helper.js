@@ -8,12 +8,12 @@ function getDummyToken() {
   return {
     username: 'username',
     token: 'aaaabbbcccc',
-    expiry: moment().toISOString()
+    expiry: moment().toDate()
   };
 }
 
 function getExpiredToken() {
-  var expired = moment().subtract(1, 'hours').toISOString();
+  var expired = moment().subtract(1, 'hours').toDate();
   return {
     token: 'aabe0119ce33',
     username: 'expiredToken',
