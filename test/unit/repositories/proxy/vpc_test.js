@@ -2,7 +2,6 @@
 
 require('../../../helper');
 var repoHelper = require('../../../repository_helper');
-var vpc = require('../../../../repositories/proxy/vpc');
 var moment = require('moment');
 var mongoose = require('../../../../repositories/mongoose');
 var config = require('../../../../config');
