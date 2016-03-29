@@ -1,8 +1,7 @@
 'use strict';
-var target = require('../../../services/subscription');
-var repoHelper = require('../../support/repository');
+var target = require('../../../services/vpc');
 var chai = require('chai');
-var stub = require('../../support/stub');
+//var stub = require('../../support/stub');
 
 var should = chai.should();
 
@@ -12,7 +11,7 @@ describe('VPC Service Integration Specs', function () {
     describe('pagination', function () {
 
       it('should default to filter 10 offset 0 when nothing is provided', function (done) {
-        target.list({subscriptionId: '1'}, null, function (err, vpcInstances) {
+        target.list({credentials: {tenant: '1', password: 'heh heh'}, resourceId: '000'}, null, function (err, vpcInstances) {
           should.not.exist(err);
           should.exist(vpcInstances);
           vpcInstances.length.should.eql(10);
@@ -21,7 +20,7 @@ describe('VPC Service Integration Specs', function () {
       });
 
       it('should paginate using the provided limit and offset parameter', function (done) {
-        target.list({subscriptionId: '1', offset: 5, limit: 5}, null,
+        target.list({credentials: {tenant: '1', password: 'heh heh'}, resourceId: '000'}, null,
           function (err, foundVpc) {
             should.not.exist(err);
             should.exist(foundVpc);
