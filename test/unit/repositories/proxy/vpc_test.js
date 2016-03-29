@@ -13,7 +13,7 @@ var logger = require('../../../../logger').getLogger('proxy test'); //eslint-dis
 
 clearDB(dbUri);
 
-describe.only('vpc proxy', function () {
+describe('vpc proxy', function () {
   beforeEach(function (done) {
     if (mongoose.connection.db) { return done(); }
     mongoose.connect(dbUri, done);
@@ -28,28 +28,36 @@ describe.only('vpc proxy', function () {
         .then(function (data) {
           token = data;
           expected = {
-            tenant: data.tenant,
+            username: data.username,
             expiry: data.expiry,
             token: data.token,
             createdAt: moment(data.createdAt).toISOString()
           };
-          return repoHelper.createSecond();
         })
-        .then(function () { done(null); })
+        .then(function () {
+          var expiredToken = repoHelper.expiredToken();
+          expiredToken.username = 'anExpiredToken';
+          return repoHelper.createOne(expiredToken);
+        })
+        .then(function (data) {
+          logger.debug('second %j', data);
+          done();
+        })
         .catch(done);
     });
     it('should find token', function (done) {
       should.exist(token);
+      logger.debug('%j', token);
       repoHelper.findById(token.id, function (e, data) {
-        data.tenant.should.equal(expected.tenant);
+        data.username.should.equal(expected.username);
         data.expiry.should.equal(expected.expiry);
         done();
       });
     });
     it('should find expired token', function (done) {
-      repoHelper.findByTenant('expiredTenantToken', function (e, data) {
+      repoHelper.findByUsername('anExpiredToken', function (e, data) {
         should.exist(data);
-        data.tenant.should.equal('expiredTenantToken');
+        data.username.should.equal('anExpiredToken');
         done();
       });
     });
@@ -59,5 +67,6 @@ describe.only('vpc proxy', function () {
         done();
       });
     });
+
   });
 });
