@@ -51,7 +51,7 @@ module.exports = {
     },
     log: {
       doc: 'Mongoose Debug Log Active',
-      format: boolean,
+      format: Boolean,
       default: true
     }
   },
