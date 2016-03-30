@@ -1,27 +1,30 @@
 'use strict';
 
-var request = require('request');
+var vpcConfig = require('../../config').get('vpcConfig');
+var logger = require('../../logger');
+logger = logger.getLogger('Proxy');
+var request = require('request-promise');
 var Promise = require('bluebird');
 var Token = require('../dao/token');
-var _ = require('lodash');
-var vpcConfig = require('../../config').get('vpcService');
 var moment = require('moment');
 
 var baseUrl = vpcConfig.baseUrl;
+var loginPath = '/identity/api/tokens';
 
 var logindefaults = {
-  url: baseUrl + '/identity/api/tokens',
-  json: {
+  url: baseUrl + loginPath,
+  body: {
     username: vpcConfig.username,
     password: vpcConfig.password,
     tenant: vpcConfig.tenant
   },
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  json: true
 };
-
-var LOGIN_SAFETY_MARGIN_TIMEOUT = 1000;
+var LOGIN_SAFETY_MARGIN_TIMEOUT = vpcConfig.safetyMargin
+  || 1000; //eslint-disable-line no-magic-numbers
 
 
 function isBeforeExpiryCutoff(date) {
@@ -30,7 +33,7 @@ function isBeforeExpiryCutoff(date) {
 }
 
 function verifyCredentials(options) {
-  return Token.findOne({tenant: options.tenant}).then(function (token) {
+  return Token.findOne({username: options.username}).then(function (token) {
     if (!token) {return [options, false];}
     if (isBeforeExpiryCutoff(token.expiry)) {
       return Promise.delay(LOGIN_SAFETY_MARGIN_TIMEOUT, [options, false]);
@@ -41,22 +44,20 @@ function verifyCredentials(options) {
 }
 
 function login(options, token) {
-  if (token) {return token;}
-  var httpOptions = _.merge(logindefaults, options);
+  if (token) {return Promise.resolve(token);}
 
-  return new Promise(function (resolve, reject) {
-    request.post(httpOptions, function responseLoginHandler(err, res, body) {
-      if (err) { return reject(err);}
-      if (res.statusCode >= '400') {
-        var errorMess = _.first(body.errors).systemMessage;
-        return reject({
-          userMessage: 'Unexpected response.',
-          code: res.statusCode,
-          developerMessage: 'Unexpected response from vpc: ' + errorMess
-        });
-      }
-      resolve(body.id);
-    });
+  var httpOptions = Object.assign(logindefaults, {method: 'POST'});
+  httpOptions.body = options;
+
+  return request(httpOptions).then(function (body) {
+    return body.id;
+  }).catch(function (reason) {
+    var error = {
+      userMessage: 'Unexpected response.',
+      code: reason.statusCode,
+      developerMessage: 'Unexpected response from vpc: ' + reason.error.message
+    };
+    throw error;
   });
 }
 
@@ -85,6 +86,8 @@ function getComputeInstanceList(options) {
 }
 
 module.exports = {
+  loginPath: loginPath,
+  login: login,
   getComputeInstance: getComputeInstance,
   getComputeInstanceList: getComputeInstanceList,
   verifyCredentials: verifyCredentials

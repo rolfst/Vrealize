@@ -2,16 +2,23 @@
 
 require('../../../helper');
 var repoHelper = require('../../../repository_helper');
-var moment = require('moment');
-var mongoose = require('../../../../repositories/mongoose');
+var stubs = require('../../../stubs');
 var config = require('../../../../config');
+var vpcConfig = config.get('vpcConfig');
+var vpc = require('../../../../repositories/proxy/vpc');
 var dbUri = config.get('database').uri;
-var clearDB = require('mocha-mongoose');
-var chai = require('chai');
-var should = chai.should();
 var logger = require('../../../../logger').getLogger('proxy test'); //eslint-disable-line no-unused-vars
 
+var _ = require('lodash');
+var moment = require('moment');
+var mongoose = require('../../../../repositories/mongoose');
+var clearDB = require('mocha-mongoose');
+var nock = require('nock');
+var chai = require('chai');
+var should = chai.should();
+
 clearDB(dbUri);
+nock.disableNetConnect();
 
 describe('vpc proxy', function () {
   beforeEach(function (done) {
@@ -22,7 +29,10 @@ describe('vpc proxy', function () {
   describe('verification of token', function () {
     var token = null;
     var expected;
-
+    afterEach(function (done) {
+      clearDB(dbUri);
+      done();
+    });
     beforeEach(function (done) {
       repoHelper.createOne()
         .then(function (data) {
@@ -39,8 +49,7 @@ describe('vpc proxy', function () {
           expiredToken.username = 'anExpiredToken';
           return repoHelper.createOne(expiredToken);
         })
-        .then(function (data) {
-          logger.debug('second %j', data);
+        .then(function () {
           done();
         })
         .catch(done);
@@ -69,5 +78,102 @@ describe('vpc proxy', function () {
       });
     });
 
+  });
+  describe('verification of token', function () {
+    beforeEach(function (done) {
+      var expiredToken = repoHelper.expiredToken();
+      expiredToken.username = 'anExpiredToken';
+      return repoHelper.createOne(expiredToken)
+      .then(function () {
+        done();
+      })
+      .catch(done);
+    });
+    afterEach(function (done) {
+      clearDB(dbUri);
+      done();
+    });
+    it('should not validate the token when token has expired', function (done) {
+      var credentials = {username: 'anExpiredToken', password: 'password'};
+      var verificationResult = vpc.verifyCredentials(credentials);
+      verificationResult.should.eventually.have.length(2);
+      verificationResult.spread(function (options, fetchedToken) {
+        options.should.eql(credentials);
+        fetchedToken.should.be.false; //eslint-disable-line no-unused-expressions
+        done();
+      });
+    });
+    it('should not validate the token when token is not in database', function (done) {
+      var credentials = {username: 'notStoredTenant', password: 'password'};
+      var verificationResult = vpc.verifyCredentials(credentials);
+      verificationResult.should.eventually.have.length(2);
+      verificationResult.spread(function (options, fetchedToken) {
+        options.should.eql(credentials);
+        fetchedToken.should.be.false; //eslint-disable-line no-unused-expressions
+        done();
+      });
+    });
+    it('should validate the token for use', function (done) {
+      var tokenValue = '#$#$#cdd^3@!fe9203&8Az==';
+      var credentials = {
+        username: 'storedToke',
+        password: 'just a password',
+        token: tokenValue,
+        expiry: moment().add(1, 'hours').toDate()
+      };
+
+      repoHelper.createOne(credentials).then(function () {
+        return vpc.verifyCredentials(credentials);
+      })
+      .spread(function (options, token) {
+        token.should.eql(tokenValue);
+        done();
+      });
+    });
+  });
+  describe('login', function () {
+    var tokenValue = '#$#$#cdd^3@!fe9203&8Az==';
+    var credentials = {
+      username: 'storedToken',
+      password: 'just a password',
+      tenant: 'storedToken'
+    };
+    beforeEach(function (done) {
+      var token = _.merge({
+        token: tokenValue,
+        expiry: moment().add(1, 'hours').toDate()
+      }, credentials);
+      repoHelper.createOne(token).then(function () {
+        done();
+      });
+    });
+
+    it('should return the token when one is provided', function () {
+      var loggedInToken = vpc.login(credentials, tokenValue);
+      return loggedInToken.should.eventually.eql(tokenValue);
+    });
+    it('should call to vpc for a token', function (done) {
+      var request = nock(vpcConfig.baseUrl)
+      .post(vpc.loginPath)
+      .reply(200, stubs.access_token);
+      vpc.login(credentials).then(function (token) {
+        request.done();
+        token.should.eql(stubs.access_token.id);
+        done();
+      });
+    });
+    it('should handle a normal error from vpc', function (done) {
+      var errorRes = '{"message": "test error"}';
+      var request = nock(vpcConfig.baseUrl)
+      .post(vpc.loginPath)
+      .reply(400, errorRes);
+      vpc.login(credentials)
+      .catch(function (error) {
+        request.done();
+        error.code.should.eql(400);
+        error.developerMessage.should.eql('Unexpected response from vpc: ' + JSON.parse(errorRes).message);
+        done();
+      });
+    });
   });
 });
