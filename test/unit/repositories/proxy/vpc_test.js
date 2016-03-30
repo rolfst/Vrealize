@@ -64,6 +64,7 @@ describe('vpc proxy', function () {
     it('should fail when no token is created', function (done) {
       repoHelper.createOne({tenant: '', expiry: '', token: ''}).catch(function (e) {
         should.exist(e);
+        e.message.should.eql('Token validation failed');
         done();
       });
     });
