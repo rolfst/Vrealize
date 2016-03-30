@@ -1,20 +1,22 @@
 'use strict';
 
-var model = require('../models/subscription');
-var Promise = require('bluebird');
+var proxy = require('./proxy/vpc');
 
-function toModel(vpc) {
-  vpc.id = vpc._id;
-  return model(vpc);
-}
 
-function list(filter, pagination, callback) {
+//function toModel(vpc) {
+//  vpc.id = vpc._id;
+//  return model(vpc);
+//}
 
+function listAsync(filter, pagination, callback) {
+  return proxy.getComputeInstanceList().then(function () {
+    return false;
+  }).asCallback(callback);
 }
 
 
 var repo = {
-  list: list
+  listAsync: listAsync
 };
 
-module.exports = Promise.promisifyAll(repo);
+module.exports = repo;

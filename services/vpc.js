@@ -3,16 +3,16 @@
 var vpcRepo = require('../repositories/vpc');
 var _ = require('lodash');
 var getError = require('../lib/error.js');
-var util = require('util');
 
 var defaultPagination = {limit: 10, offset: 0};
 var paginationProperties = ['limit', 'offset'];
 
+var filteredProps = ['username', 'password', 'resourceId'];
 
 function list(payload, message, callback) {
-  var filter = _.pick(payload, ['subscriptionId']);
-  if (_.isEmpty(filter.subscriptionId)) {
-    return callback(getError('400', 'Please provide a subscriptionId'), null);
+  var filter = _.pick(payload, filteredProps);
+  if (!filter.username || !filter.password) {
+    return callback(getError('400', 'Please provide credentials'), null);
   }
 
   var pagination = _.pick(payload, paginationProperties);
@@ -21,7 +21,7 @@ function list(payload, message, callback) {
 }
 
 var service = {
-  list: list,
+  list: list
 };
 
 module.exports = service;
