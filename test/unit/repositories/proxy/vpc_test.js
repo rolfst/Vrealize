@@ -138,6 +138,10 @@ describe('vpc proxy', function () {
       password: 'just a password',
       tenant: 'storedToken'
     };
+    afterEach(function (done) {
+      clearDB(dbUri);
+      done();
+    });
     beforeEach(function (done) {
       var token = _.merge({
         token: tokenValue,
@@ -173,6 +177,27 @@ describe('vpc proxy', function () {
         error.code.should.eql(400);
         error.developerMessage.should.eql('Unexpected response from vpc: ' + JSON.parse(errorRes).message);
         done();
+      });
+    });
+    it('should store a new token in the database', function (done) {
+      var request = nock(vpcConfig.baseUrl)
+      .post(vpc.loginPath)
+      .reply(200, stubs.access_token);
+      var username = 'previouslyUnstored';
+      var newCredentials = {
+        username: username,
+        password: 'besafe',
+        tenant: 'previouslyUnstored'
+      };
+      vpc.login(newCredentials).then(function (token) {
+        request.done();
+        token.should.eql(stubs.access_token.id);
+      })
+      .then(function () {
+        repoHelper.findByUsername(username, function (err, storedToken) {
+          storedToken.username.should.eql(username);
+          done();
+        });
       });
     });
   });

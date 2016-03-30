@@ -7,6 +7,7 @@ var request = require('request-promise');
 var Promise = require('bluebird');
 var Token = require('../dao/token');
 var moment = require('moment');
+var _ = require('lodash');
 
 var baseUrl = vpcConfig.baseUrl;
 var loginPath = '/identity/api/tokens';
@@ -50,7 +51,11 @@ function login(options, token) {
   httpOptions.body = options;
 
   return request(httpOptions).then(function (body) {
-    return body.id;
+    var baseToken = _.merge(options, body);
+    return Token.update({username: options.username}, baseToken, {upsert: true})
+    .then(function () {
+      return body.id;
+    });
   }).catch(function (reason) {
     var error = {
       userMessage: 'Unexpected response.',
