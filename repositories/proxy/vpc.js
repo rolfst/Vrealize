@@ -31,11 +31,11 @@ function isBeforeExpiryCutoff(date) {
 
 function verifyCredentials(options) {
   return Promise.resolve(Token.findOne({tenant: options.tenant}).then(function (token) {
-    if (!token) {return Promise.resolve([options, false]);}
+    if (!token) {return [options, false];}
     if (isBeforeExpiryCutoff(token.expiry)) {
       return Promise.delay(LOGIN_SAFETY_MARGIN_TIMEOUT, [options, false]);
     }
-    return Promise.resolve([options, token.token]);
+    return [options, token.token];
   }));
 
 }
