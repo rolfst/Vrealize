@@ -2,7 +2,8 @@
 var Token = require('../repositories/dao/token');
 var moment = require('moment');
 var _ = require('lodash');
-var logger = require('../logger').getLogger('repohelper');
+var logger = require('../logger');
+logger.getLogger('repohelper');
 
 function getDummyToken() {
   return {
@@ -13,7 +14,7 @@ function getDummyToken() {
 }
 
 function getExpiredToken() {
-  var expired = moment().subtract(1, 'hours').toDate();
+  var expired = moment().add(1, 'hours').toDate();
   return {
     token: 'aabe0119ce33',
     username: 'expiredToken',
@@ -24,7 +25,6 @@ function getExpiredToken() {
 function createOne(token, callback) {
   var data = token || getDummyToken();
   var cb = callback || _.noop;
-  logger.debug('saving: %j', data);
   return new Token(data).save(cb);
 }
 
@@ -33,13 +33,11 @@ var helper = {
   expiredToken: getExpiredToken,
   createOne: createOne,
   findById: function (id, callback) {
-    logger.debug(id);
     Token.findById(id, function (err, data) {
       return callback(err, data);
     }).lean();
   },
   findByUsername: function (name, callback) {
-    logger.debug(name);
     Token.findOne({username: name}, function (err, data) {
       return callback(err, data);
     });

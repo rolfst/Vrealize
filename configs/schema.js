@@ -61,6 +61,11 @@ module.exports = {
       format: String,
       default: 'https://vpc.kpnvdc.nl'
     },
+    requestAttemptMax: {
+      doc: 'Number of attemps to try a call to vpc',
+      format: 'int',
+      default: 2
+    },
     tenant: {
       doc: 'Name of the tenant in vpc',
       format: String,

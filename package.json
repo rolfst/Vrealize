@@ -25,6 +25,7 @@
     "moment": "^2.10.6",
     "mongoose": "^4.3.1",
     "request": "^2.69.0",
+    "request-promise": "^2.0.1",
     "zmq-service-suite-service": "^0.4.0"
   },
   "devDependencies": {
@@ -37,6 +38,8 @@
     "istanbul": "^0.4.2",
     "mocha": "^2.3.4",
     "mocha-mongoose": "^1.1.1",
+    "nock": "^7.7.2",
+    "rewire": "^2.5.1",
     "sinon": "^1.17.3",
     "sinon-as-promised": "^4.0.0",
     "sinon-chai": "^2.8.0",

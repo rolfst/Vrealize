@@ -1,62 +1,75 @@
 'use strict';
 
-var request = require('request');
-var Promise = require('bluebird');
+var vpcConfig = require('../../config').get('vpcConfig');
+var logger = require('../../logger');
+logger = logger.getLogger('Proxy');
+var request = require('request-promise');
 var Token = require('../dao/token');
-var _ = require('lodash');
-var vpcConfig = require('../../config').get('vpcService');
+var getError = require('../../lib/error');
 var moment = require('moment');
+var _ = require('lodash');
 
 var baseUrl = vpcConfig.baseUrl;
+var loginPath = '/identity/api/tokens';
 
-var logindefaults = {
-  url: baseUrl + '/identity/api/tokens',
-  json: {
-    username: vpcConfig.username,
-    password: vpcConfig.password,
-    tenant: vpcConfig.tenant
-  },
+var loginDefaults = {
+  url: baseUrl + loginPath,
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  json: true
 };
 
-var LOGIN_SAFETY_MARGIN_TIMEOUT = 1000;
-
-
 function isBeforeExpiryCutoff(date) {
-  var now = moment().subtract(1, 'sec');
+  var now = moment();
   return moment(date).isBefore(now.toISOString());
 }
 
-function verifyCredentials(options) {
-  return Token.findOne({tenant: options.tenant}).then(function (token) {
-    if (!token) {return [options, false];}
+function verifyCredentials(credentials) {
+  return Token.findOne({username: credentials.username}).then(function (token) {
+    if (!token) {return [credentials, null];}
     if (isBeforeExpiryCutoff(token.expiry)) {
-      return Promise.delay(LOGIN_SAFETY_MARGIN_TIMEOUT, [options, false]);
+      return [credentials, token.token];
     }
-    return [options, token.token];
+    return [credentials, null];
   });
-
 }
 
-function login(options, token) {
-  if (token) {return token;}
-  var httpOptions = _.merge(logindefaults, options);
+function login(options, attempt) {
+  attempt = attempt || 1;
+  return verifyCredentials(options)
+  .spread(function (credentials, token) {
+    if (token) {return token;}
 
-  return new Promise(function (resolve, reject) {
-    request.post(httpOptions, function responseLoginHandler(err, res, body) {
-      if (err) { return reject(err);}
-      if (res.statusCode >= '400') {
-        var errorMess = _.first(body.errors).systemMessage;
-        return reject({
-          userMessage: 'Unexpected response.',
-          code: res.statusCode,
-          developerMessage: 'Unexpected response from vpc: ' + errorMess
-        });
+    var httpOptions = _.defaults({}, loginDefaults, {method: 'POST'});
+    httpOptions.body = credentials;
+    return request(httpOptions).then(function (body) {
+      var storableCredentials = _.pick(credentials, ['username', 'tenant']);
+      var result = {
+        token: body.id,
+        expiry: body.expiry
+      };
+      var baseToken = _.merge(storableCredentials, result);
+      return Token.update({username: credentials.username}, baseToken, {upsert: true})
+      .then(function () {
+        return body.id;
+      });
+    }).catch(function (err) {
+      if (err.statusCode != '401') { //eslint-disable-line eqeqeq
+        throw getError(err.statusCode,
+                         'Unexpected response from vpc: ' + err.error.message);
       }
-      resolve(body.id);
+      if (attempt >= vpcConfig.requestAttemptMax) {
+        throw getError(err.statusCode, err.error.message);
+      }
+      return login(options, attempt + 1);
     });
+  })
+  .catch(function (reason) {
+    if (!reason.statusCode) {throw reason;}
+    var error = getError(reason.statusCode,
+                         'Unexpected response from vpc: ' + reason.error.message);
+    throw error;
   });
 }
 
@@ -85,8 +98,8 @@ function getComputeInstanceList(options) {
 }
 
 module.exports = {
+  login: login,
   getComputeInstance: getComputeInstance,
-  getComputeInstanceList: getComputeInstanceList,
-  verifyCredentials: verifyCredentials
+  getComputeInstanceList: getComputeInstanceList
 };
 
