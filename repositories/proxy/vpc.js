@@ -4,7 +4,6 @@ var vpcConfig = require('../../config').get('vpcConfig');
 var logger = require('../../logger');
 logger = logger.getLogger('Proxy');
 var request = require('request-promise');
-var Promise = require('bluebird');
 var Token = require('../dao/token');
 var moment = require('moment');
 var _ = require('lodash');
@@ -24,39 +23,43 @@ var logindefaults = {
   },
   json: true
 };
-var LOGIN_SAFETY_MARGIN_TIMEOUT = vpcConfig.safetyMargin
-  || 1000; //eslint-disable-line no-magic-numbers
-
 
 function isBeforeExpiryCutoff(date) {
-  var now = moment().subtract(1, 'sec');
+  var now = moment();
   return moment(date).isBefore(now.toISOString());
 }
 
-function verifyCredentials(options) {
-  return Token.findOne({username: options.username}).then(function (token) {
-    if (!token) {return [options, false];}
+function verifyCredentials(credentials) {
+  return Token.findOne({username: credentials.username}).then(function (token) {
+    if (!token) {return [credentials, null];}
     if (isBeforeExpiryCutoff(token.expiry)) {
-      return Promise.delay(LOGIN_SAFETY_MARGIN_TIMEOUT, [options, false]);
+      return [credentials, token.token];
     }
-    return [options, token.token];
+    return [credentials, null];
   });
-
 }
 
-function login(options, token) {
-  if (token) {return Promise.resolve(token);}
+function login(options) {
+  return verifyCredentials(options)
+  .spread(function (credentials, token) {
+    if (token) {return token;}
 
-  var httpOptions = _.defaults(logindefaults, {method: 'POST'});
-  httpOptions.body = options;
-
-  return request(httpOptions).then(function (body) {
-    var baseToken = _.merge(options, body);
-    return Token.update({username: options.username}, baseToken, {upsert: true})
-    .then(function () {
-      return body.id;
+    var httpOptions = _.defaults({}, logindefaults, {method: 'POST'});
+    httpOptions.body = credentials;
+    return request(httpOptions).then(function (body) {
+      var storableCredentials = _.pick(credentials, ['username', 'tenant']);
+      var result = {
+        token: body.id,
+        expiry: body.expiry
+      };
+      var baseToken = _.merge(storableCredentials, result);
+      return Token.update({username: credentials.username}, baseToken, {upsert: true})
+      .then(function () {
+        return body.id;
+      });
     });
-  }).catch(function (reason) {
+  })
+  .catch(function (reason) {
     var error = {
       userMessage: 'Unexpected response.',
       code: reason.statusCode,
@@ -93,7 +96,6 @@ function getComputeInstanceList(options) {
 module.exports = {
   login: login,
   getComputeInstance: getComputeInstance,
-  getComputeInstanceList: getComputeInstanceList,
-  verifyCredentials: verifyCredentials
+  getComputeInstanceList: getComputeInstanceList
 };
 

@@ -1,14 +1,8 @@
 'use strict';
 
 require('../../../helper');
-var repoHelper = require('../../../repository_helper');
-var stubs = require('../../../stubs');
-var config = require('../../../../config');
-var vpcConfig = config.get('vpcConfig');
-var vpc = require('../../../../repositories/proxy/vpc');
-var dbUri = config.get('database').uri;
-var logger = require('../../../../logger').getLogger('proxy test'); //eslint-disable-line no-unused-vars
 
+var rewire = require('rewire');
 var _ = require('lodash');
 var moment = require('moment');
 var mongoose = require('../../../../repositories/mongoose');
@@ -16,6 +10,14 @@ var clearDB = require('mocha-mongoose');
 var nock = require('nock');
 var chai = require('chai');
 var should = chai.should();
+
+var repoHelper = require('../../../repository_helper');
+var stubs = require('../../../stubs');
+var config = require('../../../../config');
+var vpcConfig = config.get('vpcConfig');
+var vpc = rewire('../../../../repositories/proxy/vpc');
+var dbUri = config.get('database').uri;
+var logger = require('../../../../logger').getLogger('proxy test'); //eslint-disable-line no-unused-vars
 
 var loginPath = '/identity/api/tokens';
 
@@ -82,6 +84,7 @@ describe('vpc proxy', function () {
 
   });
   describe('verification of token', function () {
+    var verifyCredentials = vpc.__get__('verifyCredentials');
     beforeEach(function (done) {
       var expiredToken = repoHelper.expiredToken();
       expiredToken.username = 'anExpiredToken';
@@ -97,35 +100,35 @@ describe('vpc proxy', function () {
     });
     it('should not validate the token when token has expired', function (done) {
       var credentials = {username: 'anExpiredToken', password: 'password'};
-      var verificationResult = vpc.verifyCredentials(credentials);
+      var verificationResult = verifyCredentials(credentials);
       verificationResult.should.eventually.have.length(2);
       verificationResult.spread(function (options, fetchedToken) {
         options.should.eql(credentials);
-        fetchedToken.should.be.false; //eslint-disable-line no-unused-expressions
+        should.not.exist(fetchedToken);
         done();
       });
     });
     it('should not validate the token when token is not in database', function (done) {
       var credentials = {username: 'notStoredTenant', password: 'password'};
-      var verificationResult = vpc.verifyCredentials(credentials);
+      var verificationResult = verifyCredentials(credentials);
       verificationResult.should.eventually.have.length(2);
       verificationResult.spread(function (options, fetchedToken) {
         options.should.eql(credentials);
-        fetchedToken.should.be.false; //eslint-disable-line no-unused-expressions
+        should.not.exist(fetchedToken);
         done();
       });
     });
     it('should validate the token for use', function (done) {
       var tokenValue = '#$#$#cdd^3@!fe9203&8Az==';
       var credentials = {
-        username: 'storedToke',
+        username: 'storedToken',
         password: 'just a password',
         token: tokenValue,
-        expiry: moment().add(1, 'hours').toDate()
+        expiry: moment().subtract(1, 'hours').toDate()
       };
 
       repoHelper.createOne(credentials).then(function () {
-        return vpc.verifyCredentials(credentials);
+        return verifyCredentials(credentials);
       })
       .spread(function (options, token) {
         token.should.eql(tokenValue);
@@ -154,26 +157,34 @@ describe('vpc proxy', function () {
       });
     });
 
-    it('should return the token when one is provided', function () {
-      var loggedInToken = vpc.login(credentials, tokenValue);
-      return loggedInToken.should.eventually.eql(tokenValue);
-    });
     it('should call to vpc for a token', function (done) {
+      var username = 'previouslyUnstored';
+      var newCredentials = {
+        username: username,
+        password: 'besafe',
+        tenant: 'previouslyUnstored'
+      };
       var request = nock(vpcConfig.baseUrl)
       .post(loginPath)
       .reply(200, stubs.access_token);
-      vpc.login(credentials).then(function (token) {
+      vpc.login(newCredentials).then(function (token) {
         request.done();
         token.should.eql(stubs.access_token.id);
         done();
       });
     });
     it('should handle a normal error from vpc', function (done) {
+      var username = 'previouslyUnstored';
+      var newCredentials = {
+        username: username,
+        password: 'besafe',
+        tenant: 'previouslyUnstored'
+      };
       var errorRes = '{"message": "test error"}';
       var request = nock(vpcConfig.baseUrl)
       .post(loginPath)
       .reply(400, errorRes);
-      vpc.login(credentials)
+      vpc.login(newCredentials)
       .catch(function (error) {
         request.done();
         error.code.should.eql(400);
@@ -200,6 +211,8 @@ describe('vpc proxy', function () {
           storedToken.username.should.eql(username);
           done();
         });
+      }).catch(function (e) {
+        logger.debug('%j', e);
       });
     });
   });
