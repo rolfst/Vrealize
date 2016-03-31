@@ -47,7 +47,7 @@ function verifyCredentials(options) {
 function login(options, token) {
   if (token) {return Promise.resolve(token);}
 
-  var httpOptions = Object.assign(logindefaults, {method: 'POST'});
+  var httpOptions = _.defaults(logindefaults, {method: 'POST'});
   httpOptions.body = options;
 
   return request(httpOptions).then(function (body) {
@@ -91,7 +91,6 @@ function getComputeInstanceList(options) {
 }
 
 module.exports = {
-  loginPath: loginPath,
   login: login,
   getComputeInstance: getComputeInstance,
   getComputeInstanceList: getComputeInstanceList,

@@ -17,6 +17,8 @@ var nock = require('nock');
 var chai = require('chai');
 var should = chai.should();
 
+var loginPath = '/identity/api/tokens';
+
 clearDB(dbUri);
 nock.disableNetConnect();
 
@@ -158,7 +160,7 @@ describe('vpc proxy', function () {
     });
     it('should call to vpc for a token', function (done) {
       var request = nock(vpcConfig.baseUrl)
-      .post(vpc.loginPath)
+      .post(loginPath)
       .reply(200, stubs.access_token);
       vpc.login(credentials).then(function (token) {
         request.done();
@@ -169,7 +171,7 @@ describe('vpc proxy', function () {
     it('should handle a normal error from vpc', function (done) {
       var errorRes = '{"message": "test error"}';
       var request = nock(vpcConfig.baseUrl)
-      .post(vpc.loginPath)
+      .post(loginPath)
       .reply(400, errorRes);
       vpc.login(credentials)
       .catch(function (error) {
@@ -181,7 +183,7 @@ describe('vpc proxy', function () {
     });
     it('should store a new token in the database', function (done) {
       var request = nock(vpcConfig.baseUrl)
-      .post(vpc.loginPath)
+      .post(loginPath)
       .reply(200, stubs.access_token);
       var username = 'previouslyUnstored';
       var newCredentials = {
