@@ -192,6 +192,25 @@ describe('vpc proxy', function () {
         done();
       });
     });
+    it('should handle a login request twice on error', function (done) {
+      var username = 'previouslyUnstored';
+      var newCredentials = {
+        username: username,
+        password: 'besafe',
+        tenant: 'previouslyUnstored'
+      };
+      var errorRes = '{"message": "Unauthorized"}';
+      var request = nock(vpcConfig.baseUrl)
+      .post(loginPath).times(2)
+      .reply(401, errorRes);
+      vpc.login(newCredentials)
+      .catch(function (error) {
+        request.done();
+        error.code.should.eql(401);
+        error.developerMessage.should.eql(JSON.parse(errorRes).message);
+        done();
+      });
+    });
     it('should store a new token in the database', function (done) {
       var request = nock(vpcConfig.baseUrl)
       .post(loginPath)
