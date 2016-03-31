@@ -49,7 +49,9 @@ describe('vpc proxy', function () {
           expiredToken.username = 'anExpiredToken';
           return repoHelper.createOne(expiredToken);
         })
-        .then(done)
+        .then(function () {
+          done();
+        })
         .catch(done);
     });
     it('should find token', function (done) {
@@ -82,7 +84,9 @@ describe('vpc proxy', function () {
       var expiredToken = repoHelper.expiredToken();
       expiredToken.username = 'anExpiredToken';
       return repoHelper.createOne(expiredToken)
-      .then(done)
+      .then(function () {
+        done();
+      })
       .catch(done);
     });
     afterEach(function (done) {
@@ -143,7 +147,9 @@ describe('vpc proxy', function () {
         token: tokenValue,
         expiry: moment().add(1, 'hours').toDate()
       }, credentials);
-      repoHelper.createOne(token).then(done);
+      repoHelper.createOne(token).then(function () {
+        done();
+      });
     });
 
     it('should return the token when one is provided', function () {
