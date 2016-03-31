@@ -5,6 +5,7 @@ var logger = require('../../logger');
 logger = logger.getLogger('Proxy');
 var request = require('request-promise');
 var Token = require('../dao/token');
+var getError = require('../../lib/error');
 var moment = require('moment');
 var _ = require('lodash');
 
@@ -55,11 +56,8 @@ function login(options) {
     });
   })
   .catch(function (reason) {
-    var error = {
-      userMessage: 'Unexpected response.',
-      code: reason.statusCode,
-      developerMessage: 'Unexpected response from vpc: ' + reason.error.message
-    };
+    var error = getError(reason.statusCode,
+                         'Unexpected response from vpc: ' + reason.error.message);
     throw error;
   });
 }
