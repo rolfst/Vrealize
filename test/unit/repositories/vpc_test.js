@@ -1,23 +1,23 @@
 'use strict';
 
-require('../../../helper');
+require('../../helper');
 
 var rewire = require('rewire');
 var _ = require('lodash');
 var moment = require('moment');
-var mongoose = require('../../../../repositories/mongoose');
+var mongoose = require('../../../repositories/mongoose');
 var clearDB = require('mocha-mongoose');
 var nock = require('nock');
 var chai = require('chai');
 var should = chai.should();
 
-var repoHelper = require('../../../repository_helper');
-var stubs = require('../../../stubs');
-var config = require('../../../../config');
+var repoHelper = require('../../repository_helper');
+var stubs = require('../../stubs');
+var config = require('../../../config');
 var vpcConfig = config.get('vpcConfig');
-var vpc = rewire('../../../../repositories/proxy/vpc');
+var vpc = rewire('../../../repositories/vpc');
 var dbUri = config.get('database').uri;
-var logger = require('../../../../logger').getLogger('proxy test'); //eslint-disable-line no-unused-vars
+var logger = require('../../../logger').getLogger('proxy test'); //eslint-disable-line no-unused-vars
 
 var loginPath = '/identity/api/tokens';
 
