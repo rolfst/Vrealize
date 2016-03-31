@@ -11,13 +11,8 @@ var _ = require('lodash');
 var baseUrl = vpcConfig.baseUrl;
 var loginPath = '/identity/api/tokens';
 
-var logindefaults = {
+var loginDefaults = {
   url: baseUrl + loginPath,
-  body: {
-    username: vpcConfig.username,
-    password: vpcConfig.password,
-    tenant: vpcConfig.tenant
-  },
   headers: {
     'Content-Type': 'application/json'
   },
@@ -44,7 +39,7 @@ function login(options) {
   .spread(function (credentials, token) {
     if (token) {return token;}
 
-    var httpOptions = _.defaults({}, logindefaults, {method: 'POST'});
+    var httpOptions = _.defaults({}, loginDefaults, {method: 'POST'});
     httpOptions.body = credentials;
     return request(httpOptions).then(function (body) {
       var storableCredentials = _.pick(credentials, ['username', 'tenant']);
