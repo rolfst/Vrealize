@@ -57,17 +57,44 @@ describe('VPC Service Integration', function () {
       });
     });
 
-    it.only('should return a list', function (done) {
-      var request = nock(vpcConfig.baseUrl, {reqHeaders: {Authorization: 'Bearer ' + tokenValue}})
-      .post(resourcesUrl)
-      .reply(200, []);
-      target.list(credentials, null, function callback(error, value) {
-        request.done();
-        logger.debug('%j', error);
-        should.not.exist(error);
-        should.exist(value);
-        value.should.be.empty; //eslint-disable-line
-        done();
+    // it.only('should return a list', function (done) {
+    //   var request = nock(vpcConfig.baseUrl)
+    //   .post(resourcesUrl)
+    //   .reply(200, []);
+    //   target.list(credentials, null, function callback(error, value) {
+    //     request.done();
+    //     logger.debug('%j', error);
+    //     should.not.exist(error);
+    //     should.exist(value);
+    //     value.should.be.empty; //eslint-disable-line
+    //     done();
+    //   });
+    // });
+  });
+
+  describe('#get', function () {
+    var params;
+
+    beforeEach(function () {
+      params = {
+        tenant: 'someTenant',
+        username: 'someUser',
+        password: 'somePass',
+        resourceId: 'someResourceId'
+      };
+    });
+
+    _.each(['tenant', 'username', 'password', 'resourceId'], function (param) {
+      it('requires ' + param, function (done) {
+        delete params[param];
+        target.get(params, null, function (err) {
+          err.code.should.equal(400);
+          done();
+        });
+      });
+    });
+  });
+});
       });
     });
   });

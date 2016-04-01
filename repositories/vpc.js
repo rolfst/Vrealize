@@ -15,7 +15,7 @@ var UNAUTHORIZED = 401;
 
 var baseUrl = vpcConfig.baseUrl;
 var loginPath = '/identity/api/tokens';
-var resourcesPath = '/catalog-service/api/consumer/resources?withExtendedData=true';
+var resourcesPath = '/catalog-service/api/consumer/resources/';
 
 var headers = {
   'Content-Type': 'application/json'
@@ -26,8 +26,8 @@ var loginDefaults = {
   json: true
 };
 var resourcesDefaults = {
-  url: baseUrl + resourcesPath,
-  method: 'POST',
+  url: baseUrl + resourcesPath + '?withExtendedData=true',
+  method: 'GET',
   json: true
 };
 
@@ -94,6 +94,7 @@ function login(options, attempt) {
     });
   })
   .catch(function (reason) {
+    logger.debug('attempting to get login a second time');
     if (!reason.statusCode) {throw reason;}
     var error = getError(reason.statusCode,
                          'Unexpected response from vpc: '
@@ -116,15 +117,29 @@ function fetchAllinstances(token, options) {
                                {body: body},
                                resourcesDefaults);
   httpOptions.headers = resourceHeaders;
-  request(httpOptions).then(function (response) {
+  return request(httpOptions)
+  .then(function (response) {
     return response;
   })
   .then(function mapResources(resources) {
     return resources;
   })
   .catch(function (e) {
-    logger.debug('body: ', util.inspect(e, null, false));
+    logger.debug('body: ', util.inspect(e, null, true));
   });
+}
+
+function fetchInstance(token, resourceId) {
+  var httpOptions = {
+    url: baseUrl + resourcesPath + resourceId,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    json: true,
+    method: 'GET'
+  };
+
+  return request(httpOptions);
 }
 
 function listAsync(filter, pagination, attempt) {
@@ -136,12 +151,22 @@ function listAsync(filter, pagination, attempt) {
     return fetchAllinstances(token, options);
   })
   .catch(function (error) {
+    logger.debug('attempting to get list a second time');
     handleError(error, attempt);
     return listAsync(filter, pagination, attempt + 1);
   });
 }
 
+function getAsync(filter) {
+  var filteredProps = ['username', 'password', 'tenant'];
+  var credentials = _.pick(filter, filteredProps);
+  return login(credentials).then(function (token) {
+    return fetchInstance(token, filter.resourceId);
+  });
+}
+
 module.exports = {
   login: login,
-  listAsync: listAsync
+  listAsync: listAsync,
+  getAsync: getAsync
 };
