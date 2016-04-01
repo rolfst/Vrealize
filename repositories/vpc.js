@@ -55,12 +55,16 @@ function login(options, attempt) {
         return body.id;
       });
     }).catch(function (err) {
-      if (err.statusCode != '401') { //eslint-disable-line eqeqeq
-        throw getError(err.statusCode,
-                         'Unexpected response from vpc: ' + err.error.message);
+      if (!_.includes([401, 400], err.statusCode)) { //eslint-disable-line no-magic-numbers
+        if (err.statusCode) {
+          throw getError(err.statusCode,
+                         'Unexpected response from vpc: ' + _.first(err.error.errors).message);
+        }
+        throw getError('500', err.message);
+
       }
       if (attempt >= vpcConfig.requestAttemptMax) {
-        throw getError(err.statusCode, err.error.message);
+        throw getError(err.statusCode, _.first(err.error.errors).message);
       }
       return login(options, attempt + 1);
     });
@@ -68,12 +72,13 @@ function login(options, attempt) {
   .catch(function (reason) {
     if (!reason.statusCode) {throw reason;}
     var error = getError(reason.statusCode,
-                         'Unexpected response from vpc: ' + reason.error.message);
+                         'Unexpected response from vpc: ' + _.first(reason.error.errors).message);
     throw error;
   });
 }
 
-function fetchAllinstances(token, options) {
+function fetchAllinstances(token, options, attempt) {
+  attempt = attempt || 1;
   return [token, options];
 }
 
