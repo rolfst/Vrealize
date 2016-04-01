@@ -1,6 +1,7 @@
 'use strict';
 
 var vpcConfig = require('../config').get('vpcConfig');
+var proxyConfig = require('../config').get('proxyConfig');
 var logger = require('../logger');
 logger = logger.getLogger('Proxy');
 var request = require('request-promise');
@@ -9,6 +10,7 @@ var getError = require('../lib/error');
 var moment = require('moment');
 var _ = require('lodash');
 var util = require('util');
+var HttpsProxyAgent = require('https-proxy-agent');
 
 var BAD_REQUEST = 400;
 var UNAUTHORIZED = 401;
@@ -30,6 +32,18 @@ var resourcesDefaults = {
   method: 'GET',
   json: true
 };
+
+var proxyOptions = {};
+if (proxyConfig.enabled) {
+  var agent = new HttpsProxyAgent(proxyConfig.address);
+  proxyOptions = {
+    agent: agent
+  };
+}
+
+function httpRequest(options) {
+  return request(_.merge({}, options, proxyOptions));
+}
 
 function handleError(err, attempt) {
   if (!_.includes([BAD_REQUEST, UNAUTHORIZED], err.statusCode)) {
@@ -77,7 +91,7 @@ function login(options, attempt) {
 
     var httpOptions = _.defaults({}, loginDefaults, headers, {method: 'POST', body: credentials});
     httpOptions.body = credentials;
-    return request(httpOptions).then(function (body) {
+    return httpRequest(httpOptions).then(function (body) {
       var storableCredentials = _.pick(credentials, ['username', 'tenant']);
       var result = {
         token: body.id,
@@ -108,6 +122,21 @@ function login(options, attempt) {
     throw error;
   });
 }
+var requiredEntries = [
+  'MachineGuestOperatingSystem', 'MachineMemory', 'MachineStorage', 'MachineCPU'
+];
+function toCompactPayload(vpcPayload) {
+  var entries = _.filter(vpcPayload.resourceData.entries, function (entry) {
+    return _.includes(requiredEntries, entry.key);
+  });
+  return {
+    id: vpcPayload.id,
+    name: vpcPayload.name,
+    requiredEntries: {
+      entries: entries
+    }
+  };
+}
 
 function fetchAllinstances(token, options) {
   var resourceHeaders = _.defaults({}, headers);
@@ -117,9 +146,12 @@ function fetchAllinstances(token, options) {
                                {body: body},
                                resourcesDefaults);
   httpOptions.headers = resourceHeaders;
-  return request(httpOptions)
+  return httpRequest(httpOptions)
   .then(function (response) {
-    return response.content;
+    if (_.isEmpty(response.content)) {
+      return [];
+    }
+    return response.content.map(toCompactPayload);
   })
   .catch(function (e) {
     logger.debug('body: ', util.inspect(e, null, true));
@@ -136,7 +168,7 @@ function fetchInstance(token, resourceId) {
     method: 'GET'
   };
 
-  return request(httpOptions);
+  return httpRequest(httpOptions).then(toCompactPayload);
 }
 
 function listAsync(filter, pagination, attempt) {
