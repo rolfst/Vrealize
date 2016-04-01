@@ -13,7 +13,6 @@ var should = chai.should();
 
 var repoHelper = require('../../repository_helper');
 var stubs = require('../../stubs');
-// var blueprints = require('../../blueprints');
 var config = require('../../../config');
 var vpcConfig = config.get('vpcConfig');
 var vpc = rewire('../../../repositories/vpc');
