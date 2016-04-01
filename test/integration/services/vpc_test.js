@@ -23,16 +23,17 @@ nock.disableNetConnect();
 describe('VPC Service Integration', function () {
   describe('list', function () {
     var tokenValue = '#$#$#cdd^3@!fe9203&8Az==';
-    var credentials = {
-      username: 'storedToken',
-      password: 'just a password',
-      tenant: 'storedToken'
-    };
+    var credentials;
     afterEach(function (done) {
       clearDB(dbUri);
       done();
     });
     beforeEach(function (done) {
+      credentials = {
+        username: 'storedToken',
+        password: 'just a password',
+        tenant: 'storedToken'
+      };
       var token = _.merge({},
         {
           token: tokenValue,
@@ -42,22 +43,18 @@ describe('VPC Service Integration', function () {
         done();
       });
     });
-    it('should return an error because no credentials are provided', function (done) {
-      var missingCredentials = [{username: 'username', password: 'password', execute: function () {}},
-        {password: 'password', tenant: 'tenant', execute: function () {}},
-        {username: 'username', tenant: 'tenant', execute: function () {done();}}
-      ];
-      missingCredentials.map(function (credential) {
-        target.list(credential, null, function callback(error, value) {
-          should.not.exist(value);
-          should.exist(error);
-          error.code.should.eql(401);
-          credential.execute();
+
+    _.each(['tenant', 'username', 'password'], function (param) {
+      it('requires ' + param, function (done) {
+        delete credentials[param];
+        target.list(credentials, null, function (err) {
+          err.code.should.equal(400);
+          done();
         });
       });
     });
 
-    it.only('should return a list', function (done) {
+    it('should return a list', function (done) {
       var request = nock(vpcConfig.baseUrl)
       .get(resourcesPath + '?withExtendedData=true')
       .reply(200, []);
