@@ -9,6 +9,9 @@ var getError = require('../lib/error');
 var moment = require('moment');
 var _ = require('lodash');
 
+var BAD_REQUEST = 400;
+var UNAUTHORIZED = 401;
+
 var baseUrl = vpcConfig.baseUrl;
 var loginPath = '/identity/api/tokens';
 
@@ -55,7 +58,7 @@ function login(options, attempt) {
         return body.id;
       });
     }).catch(function (err) {
-      if (!_.includes([401, 400], err.statusCode)) { //eslint-disable-line no-magic-numbers
+      if (!_.includes([BAD_REQUEST, UNAUTHORIZED], err.statusCode)) {
         if (err.statusCode) {
           throw getError(err.statusCode,
                          'Unexpected response from vpc: ' + err.error.errors.map(function (error) {
