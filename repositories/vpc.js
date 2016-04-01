@@ -15,8 +15,7 @@ var UNAUTHORIZED = 401;
 
 var baseUrl = vpcConfig.baseUrl;
 var loginPath = '/identity/api/tokens';
-var resourcesPath = '/catalog-service/api/consumer/resources?withExtendedData=true';
-var resourcesPath = '/api/consumer/resources/';
+var resourcesPath = '/catalog-service/api/consumer/resources/';
 
 var headers = {headers: {
   'Content-Type': 'application/json'
@@ -27,7 +26,7 @@ var loginDefaults = {
   json: true
 };
 var resourcesDefaults = {
-  url: baseUrl + resourcesPath,
+  url: baseUrl + resourcesPath + '?withExtendedData=true',
   method: 'POST',
   json: true
 };
