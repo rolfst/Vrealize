@@ -65,6 +65,7 @@ describe('VPC Service Integration', function () {
         request.done();
         should.not.exist(error);
         should.exist(value);
+        value.should.be.empty; //eslint-disable-line
         done();
       });
     });
