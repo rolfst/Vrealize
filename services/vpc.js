@@ -24,12 +24,9 @@ function list(payload, message, callback) {
 
 function get(payload, headers, callback) {
   var filter = _.pick(payload, requiredGetParams);
-  _.each(requiredGetParams, function (param) {
-    if (!filter[param]) {
-      return callback(getError(BAD_REQUEST, 'Missing required param: ' + param), null);
-    }
-  });
-
+  if (!filter.username || !filter.password || !filter.tenant || !filter.resourceId) {
+    return callback(getError(BAD_REQUEST, 'Please provide credentials'), null);
+  }
   return vpcRepo.getAsync(filter).asCallback(callback);
 }
 
