@@ -54,7 +54,7 @@ describe('VPC Service Integration', function () {
     it('should return a list', function (done) {
       var request = nock(vpcConfig.baseUrl)
       .get(resourcesPath + '?withExtendedData=true')
-      .reply(200, []);
+      .reply(200, {content: []});
       target.list(credentials, null, function callback(error, value) {
         request.done();
         should.not.exist(error);

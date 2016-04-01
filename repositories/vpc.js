@@ -119,10 +119,7 @@ function fetchAllinstances(token, options) {
   httpOptions.headers = resourceHeaders;
   return request(httpOptions)
   .then(function (response) {
-    return response;
-  })
-  .then(function mapResources(resources) {
-    return resources;
+    return response.content;
   })
   .catch(function (e) {
     logger.debug('body: ', util.inspect(e, null, true));
