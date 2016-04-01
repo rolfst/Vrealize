@@ -13,7 +13,7 @@ var baseUrl = vpcConfig.baseUrl;
 var loginPath = '/identity/api/tokens';
 var resourcesPath = '/catalog-service/api/consumer/resources/';
 
-var headers = {
+var defaultHeaders = {
   'Content-Type': 'application/json'
 };
 var loginDefaults = {
@@ -46,7 +46,8 @@ function login(options) {
   return verifyCredentials(options)
   .spread(function (credentials, token) {
     if (token) {return token;}
-    var httpOptions = _.defaults({}, loginDefaults, headers, {method: 'POST', body: credentials});
+    var postOptions = {method: 'POST', body: credentials};
+    var httpOptions = _.defaults({}, loginDefaults, defaultHeaders, postOptions);
     httpOptions.body = credentials;
     return httpRequest(httpOptions).then(function (body) {
       var storableCredentials = _.pick(credentials, ['username', 'tenant']);
@@ -64,7 +65,7 @@ function login(options) {
 }
 
 function fetchAllinstances(token, options) {
-  var resourceHeaders = _.defaults({}, headers);
+  var resourceHeaders = _.defaults({}, defaultHeaders);
   resourceHeaders = _.defaults(resourceHeaders, {Authorization: 'Bearer ' + token});
   var body = _.pick(options, []);
   var httpOptions = _.defaults({},
@@ -81,7 +82,7 @@ function fetchAllinstances(token, options) {
 }
 
 function fetchInstance(token, resourceId) {
-  var resourceHeaders = _.defaults({}, headers);
+  var resourceHeaders = _.defaults({}, defaultHeaders);
   resourceHeaders = _.defaults(resourceHeaders, {Authorization: 'Bearer ' + token});
   var httpOptions = {
     url: baseUrl + resourcesPath + resourceId,
