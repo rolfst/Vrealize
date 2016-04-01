@@ -50,7 +50,6 @@ function login(options) {
     if (token) {return token;}
     var postOptions = {method: 'POST', body: credentials};
     var httpOptions = _.defaults({}, loginDefaults, defaultHeaders, postOptions);
-    httpOptions.body = credentials;
     return httpRequest(httpOptions).then(function (body) {
       var storableCredentials = _.pick(credentials, ['username', 'tenant']);
       var result = {
