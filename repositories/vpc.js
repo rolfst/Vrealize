@@ -1,6 +1,7 @@
 'use strict';
 
 var vpcConfig = require('../config').get('vpcConfig');
+var proxyConfig = require('../config').get('proxyConfig');
 var logger = require('../logger');
 logger = logger.getLogger('Proxy');
 var request = require('request-promise');
@@ -9,6 +10,7 @@ var getError = require('../lib/error');
 var moment = require('moment');
 var _ = require('lodash');
 var util = require('util');
+var HttpsProxyAgent = require('https-proxy-agent');
 
 var BAD_REQUEST = 400;
 var UNAUTHORIZED = 401;
@@ -30,6 +32,18 @@ var resourcesDefaults = {
   method: 'GET',
   json: true
 };
+
+var proxyOptions = {};
+if (proxyConfig.enabled) {
+  var agent = new HttpsProxyAgent(proxyConfig.address);
+  proxyOptions = {
+    agent: agent
+  };
+}
+
+function httpRequest(options) {
+  return request(_.merge({}, options, proxyOptions));
+}
 
 function handleError(err, attempt) {
   if (!_.includes([BAD_REQUEST, UNAUTHORIZED], err.statusCode)) {
@@ -77,7 +91,7 @@ function login(options, attempt) {
 
     var httpOptions = _.defaults({}, loginDefaults, headers, {method: 'POST', body: credentials});
     httpOptions.body = credentials;
-    return request(httpOptions).then(function (body) {
+    return httpRequest(httpOptions).then(function (body) {
       var storableCredentials = _.pick(credentials, ['username', 'tenant']);
       var result = {
         token: body.id,
@@ -132,7 +146,7 @@ function fetchAllinstances(token, options) {
                                {body: body},
                                resourcesDefaults);
   httpOptions.headers = resourceHeaders;
-  return request(httpOptions)
+  return httpRequest(httpOptions)
   .then(function (response) {
     if (_.isEmpty(response.content)) {
       return [];
@@ -154,7 +168,7 @@ function fetchInstance(token, resourceId) {
     method: 'GET'
   };
 
-  return request(httpOptions).then(toCompactPayload);
+  return httpRequest(httpOptions).then(toCompactPayload);
 }
 
 function listAsync(filter, pagination, attempt) {

@@ -3,5 +3,8 @@
     "uri": "mongodb://localhost/vpc-test",
     "log": false
   },
-  "logging": null
+  "logging": null,
+  "proxyConfig": {
+    "enabled": false
+  }
 }

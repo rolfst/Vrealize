@@ -1,2 +1,5 @@
 {
+  "proxyConfig": {
+    "enabled": false
+  }
 }
