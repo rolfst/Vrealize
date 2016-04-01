@@ -13,7 +13,7 @@ var should = chai.should();
 
 var repoHelper = require('../../repository_helper');
 var stubs = require('../../stubs');
-var blueprints = require('../../blueprints');
+// var blueprints = require('../../blueprints');
 var config = require('../../../config');
 var vpcConfig = config.get('vpcConfig');
 var vpc = rewire('../../../repositories/vpc');
@@ -171,44 +171,6 @@ describe('vpc proxy', function () {
       vpc.login(newCredentials).then(function (token) {
         request.done();
         token.should.eql(stubs.access_token.id);
-        done();
-      });
-    });
-    it('should handle a normal error from vpc', function (done) {
-      var username = 'previouslyUnstored';
-      var newCredentials = {
-        username: username,
-        password: 'besafe',
-        tenant: 'previouslyUnstored'
-      };
-      var errorRes = {errors: [{'message': 'forbidden'}]};
-      var request = nock(vpcConfig.baseUrl)
-      .post(loginPath)
-      .reply(404, errorRes);
-      vpc.login(newCredentials)
-      .catch(function (error) {
-        request.done();
-        error.code.should.eql(404);
-        error.developerMessage.should.eql('Unexpected response from vpc: ' + _.first(errorRes.errors).message);
-        done();
-      });
-    });
-    it('should handle a login request twice on error', function (done) {
-      var username = 'previouslyUnstored';
-      var newCredentials = {
-        username: username,
-        password: 'besafe',
-        tenant: 'previouslyUnstored'
-      };
-      var errorRes = blueprints.authentication_error;
-      var request = nock(vpcConfig.baseUrl)
-      .post(loginPath).times(2)
-      .reply(401, errorRes);
-      vpc.login(newCredentials)
-      .catch(function (error) {
-        request.done();
-        error.code.should.eql(401);
-        error.developerMessage.should.eql(_.first(errorRes.errors).message);
         done();
       });
     });

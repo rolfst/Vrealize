@@ -63,6 +63,49 @@ describe('VPC Service Integration', function () {
         done();
       });
     });
+
+    it('should imediately fail when an error other then 401 happens', function (done) {
+      var request = nock(vpcConfig.baseUrl)
+      .get(resourcesPath + '?withExtendedData=true')
+      .reply(500);
+      target.list(credentials, null, function callback(error) {
+        request.done();
+        error.code.should.eq(500);
+        done();
+      });
+    });
+
+    it('retries if 401', function (done) {
+      var expectedPayload = [stubs.compressed_windows_vm];
+      var request = nock(vpcConfig.baseUrl)
+      .get(resourcesPath + '?withExtendedData=true')
+      .times(1)
+      .reply(401);
+      var request2 = nock(vpcConfig.baseUrl)
+      .get(resourcesPath + '?withExtendedData=true')
+      .times(1)
+      .reply(200, {content: [stubs.windows_vm]});
+      target.list(credentials, null, function callback(error, value) {
+        request.done();
+        request2.done();
+        should.not.exist(error);
+        value.should.eql(expectedPayload);
+        done();
+      });
+    });
+
+    it('returns 401 if attempt limit reached', function (done) {
+      var request = nock(vpcConfig.baseUrl)
+      .get(resourcesPath + '?withExtendedData=true')
+      .times(vpcConfig.requestAttemptMax)
+      .reply(401);
+      target.list(credentials, null, function callback(error) {
+        request.done();
+        error.code.should.eq(401);
+        done();
+      });
+    });
+
   });
 
   describe('#get', function () {
