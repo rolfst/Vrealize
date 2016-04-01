@@ -108,6 +108,21 @@ function login(options, attempt) {
     throw error;
   });
 }
+var requiredEntries = [
+  'MachineGuestOperatingSystem', 'MachineMemory', 'MachineStorage', 'MachineCPU'
+];
+function toCompactPayload(vpcPayload) {
+  var entries = _.filter(vpcPayload.resourceData.entries, function (entry) {
+    return _.includes(requiredEntries, entry.key);
+  });
+  return {
+    id: vpcPayload.id,
+    name: vpcPayload.name,
+    requiredEntries: {
+      entries: entries
+    }
+  };
+}
 
 function fetchAllinstances(token, options) {
   var resourceHeaders = _.defaults({}, headers);
@@ -119,7 +134,10 @@ function fetchAllinstances(token, options) {
   httpOptions.headers = resourceHeaders;
   return request(httpOptions)
   .then(function (response) {
-    return response.content;
+    if (_.isEmpty(response.content)) {
+      return [];
+    }
+    return response.content.map(toCompactPayload);
   })
   .catch(function (e) {
     logger.debug('body: ', util.inspect(e, null, true));
@@ -136,7 +154,7 @@ function fetchInstance(token, resourceId) {
     method: 'GET'
   };
 
-  return request(httpOptions);
+  return request(httpOptions).then(toCompactPayload);
 }
 
 function listAsync(filter, pagination, attempt) {
