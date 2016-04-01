@@ -7,12 +7,11 @@ var getError = require('../lib/error.js');
 var defaultPagination = {limit: 10, offset: 0};
 var paginationProperties = ['limit', 'offset'];
 
-var filteredProps = ['username', 'password', 'tenant'];
-var requiredGetParams = ['tenant', 'username', 'password', 'resourceId'];
+var requiredParams = ['tenant', 'username', 'password'];
 var BAD_REQUEST = 400;
 
 function list(payload, message, callback) {
-  var filter = _.pick(payload, filteredProps);
+  var filter = _.pick(payload, requiredParams);
   if (!filter.username || !filter.password || !filter.tenant) {
     return callback(getError(BAD_REQUEST, 'Please provide credentials'), null);
   }
@@ -23,7 +22,7 @@ function list(payload, message, callback) {
 }
 
 function get(payload, headers, callback) {
-  var filter = _.pick(payload, requiredGetParams);
+  var filter = _.pick(payload, requiredParams.concat('resourceId'));
   if (!filter.username || !filter.password || !filter.tenant || !filter.resourceId) {
     return callback(getError(BAD_REQUEST, 'Please provide credentials'), null);
   }

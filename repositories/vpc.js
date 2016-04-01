@@ -7,7 +7,6 @@ var Token = require('./dao/token');
 var getError = require('../lib/error');
 var moment = require('moment');
 var _ = require('lodash');
-var util = require('util');
 var toCompactPayload = require('./mapper');
 var httpRequest = require('./http_request');
 
@@ -124,22 +123,18 @@ function fetchAllinstances(token, options) {
       return [];
     }
     return response.content.map(toCompactPayload);
-  })
-  .catch(function (e) {
-    logger.debug('body: ', util.inspect(e, null, true));
   });
 }
 
 function fetchInstance(token, resourceId) {
+  var resourceHeaders = _.defaults({}, headers);
+  resourceHeaders = _.defaults(resourceHeaders, {Authorization: 'Bearer ' + token});
   var httpOptions = {
     url: baseUrl + resourcesPath + resourceId,
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: resourceHeaders,
     json: true,
     method: 'GET'
   };
-
   return httpRequest(httpOptions).then(toCompactPayload);
 }
 
