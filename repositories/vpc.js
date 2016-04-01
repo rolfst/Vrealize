@@ -65,7 +65,9 @@ function login(options) {
   });
 }
 
-function fetchAllinstances(token, options) {
+function listAsync(filter, pagination) {
+  var token = filter.token;
+  var options = _.defaults({}, filter, pagination);
   var resourceHeaders = _.defaults({}, defaultHeaders);
   resourceHeaders = _.defaults({}, resourceHeaders, {Authorization: 'Bearer ' + token});
   var body = _.pick(options, []);
@@ -79,7 +81,9 @@ function fetchAllinstances(token, options) {
   });
 }
 
-function fetchInstance(token, resourceId) {
+function getAsync(filter) {
+  var token = filter.token;
+  var resourceId = filter.resourceId;
   var resourceHeaders = _.defaults({}, defaultHeaders);
   resourceHeaders = _.defaults({}, resourceHeaders, {Authorization: 'Bearer ' + token});
   var httpOptions = {
@@ -89,15 +93,6 @@ function fetchInstance(token, resourceId) {
     method: 'GET'
   };
   return httpRequest(httpOptions).then(toCompactPayload);
-}
-
-function listAsync(filter, pagination) {
-  var options = _.defaults({}, filter, pagination);
-  return fetchAllinstances(filter.token, options);
-}
-
-function getAsync(filter) {
-  return fetchInstance(filter.token, filter.resourceId);
 }
 
 module.exports = {
