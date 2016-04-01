@@ -6,13 +6,13 @@ var requiredEntries = [
   'MachineGuestOperatingSystem', 'MachineMemory', 'MachineStorage', 'MachineCPU'
 ];
 
-function toCompactPayload(vpcPayload) {
-  var entries = _.filter(vpcPayload.resourceData.entries, function (entry) {
+function toCompactPayload(payload) {
+  var entries = _.filter(payload.resourceData.entries, function (entry) {
     return _.includes(requiredEntries, entry.key);
   });
   return {
-    id: vpcPayload.id,
-    name: vpcPayload.name,
+    id: payload.id,
+    name: payload.name,
     requiredEntries: {
       entries: entries
     }
