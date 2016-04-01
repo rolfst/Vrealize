@@ -8,10 +8,12 @@ var moment = require('moment');
 var _ = require('lodash');
 var toCompactPayload = require('./mapper');
 var httpRequest = require('./http_request');
+var util = require('util');
 
 var baseUrl = vpcConfig.baseUrl;
 var loginPath = '/identity/api/tokens';
-var resourcesPath = '/catalog-service/api/consumer/resources/';
+var resourcesPath = '%s/catalog-service/api/consumer/resources/?withExtendedData=true';
+var resourcePath = '%s/catalog-service/api/consumer/resources/%s';
 
 var defaultHeaders = {
   'Content-Type': 'application/json'
@@ -22,7 +24,7 @@ var loginDefaults = {
   json: true
 };
 var resourcesDefaults = {
-  url: baseUrl + resourcesPath + '?withExtendedData=true',
+  url: util.format(resourcesPath, baseUrl),
   method: 'GET',
   json: true
 };
@@ -85,7 +87,7 @@ function fetchInstance(token, resourceId) {
   var resourceHeaders = _.defaults({}, defaultHeaders);
   resourceHeaders = _.defaults(resourceHeaders, {Authorization: 'Bearer ' + token});
   var httpOptions = {
-    url: baseUrl + resourcesPath + resourceId,
+    url: util.format(resourcePath, baseUrl, resourceId),
     headers: resourceHeaders,
     json: true,
     method: 'GET'
