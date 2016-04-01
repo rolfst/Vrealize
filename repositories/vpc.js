@@ -67,7 +67,7 @@ function login(options) {
 
 function fetchAllinstances(token, options) {
   var resourceHeaders = _.defaults({}, defaultHeaders);
-  resourceHeaders = _.defaults(resourceHeaders, {Authorization: 'Bearer ' + token});
+  resourceHeaders = _.defaults({}, resourceHeaders, {Authorization: 'Bearer ' + token});
   var body = _.pick(options, []);
   var httpOptions = _.defaults({},
                                {body: body},
