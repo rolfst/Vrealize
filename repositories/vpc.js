@@ -1,16 +1,15 @@
 'use strict';
 
 var vpcConfig = require('../config').get('vpcConfig');
-var proxyConfig = require('../config').get('proxyConfig');
 var logger = require('../logger');
 logger = logger.getLogger('Proxy');
-var request = require('request-promise');
 var Token = require('./dao/token');
 var getError = require('../lib/error');
 var moment = require('moment');
 var _ = require('lodash');
 var util = require('util');
-var HttpsProxyAgent = require('https-proxy-agent');
+var toCompactPayload = require('./mapper');
+var httpRequest = require('./http_request');
 
 var BAD_REQUEST = 400;
 var UNAUTHORIZED = 401;
@@ -32,18 +31,6 @@ var resourcesDefaults = {
   method: 'GET',
   json: true
 };
-
-var proxyOptions = {};
-if (proxyConfig.enabled) {
-  var agent = new HttpsProxyAgent(proxyConfig.address);
-  proxyOptions = {
-    agent: agent
-  };
-}
-
-function httpRequest(options) {
-  return request(_.merge({}, options, proxyOptions));
-}
 
 function handleError(err, attempt) {
   if (!_.includes([BAD_REQUEST, UNAUTHORIZED], err.statusCode)) {
@@ -121,21 +108,6 @@ function login(options, attempt) {
 
     throw error;
   });
-}
-var requiredEntries = [
-  'MachineGuestOperatingSystem', 'MachineMemory', 'MachineStorage', 'MachineCPU'
-];
-function toCompactPayload(vpcPayload) {
-  var entries = _.filter(vpcPayload.resourceData.entries, function (entry) {
-    return _.includes(requiredEntries, entry.key);
-  });
-  return {
-    id: vpcPayload.id,
-    name: vpcPayload.name,
-    requiredEntries: {
-      entries: entries
-    }
-  };
 }
 
 function fetchAllinstances(token, options) {
