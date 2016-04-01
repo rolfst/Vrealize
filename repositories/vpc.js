@@ -75,16 +75,13 @@ function fetchAllinstances(token, options) {
   httpOptions.headers = resourceHeaders;
   return httpRequest(httpOptions)
   .then(function (response) {
-    if (_.isEmpty(response.content)) {
-      return [];
-    }
     return response.content.map(toCompactPayload);
   });
 }
 
 function fetchInstance(token, resourceId) {
   var resourceHeaders = _.defaults({}, defaultHeaders);
-  resourceHeaders = _.defaults(resourceHeaders, {Authorization: 'Bearer ' + token});
+  resourceHeaders = _.defaults({}, resourceHeaders, {Authorization: 'Bearer ' + token});
   var httpOptions = {
     url: util.format(resourcePath, baseUrl, resourceId),
     headers: resourceHeaders,
