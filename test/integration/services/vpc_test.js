@@ -54,11 +54,11 @@ describe('VPC Service Integration', function () {
     it('should return a list', function (done) {
       var request = nock(vpcConfig.baseUrl)
       .get(resourcesPath + '?withExtendedData=true')
-      .reply(200, {content: []});
+      .reply(200, {content: [stubs.windows_vm]});
       target.list(credentials, null, function callback(error, value) {
         request.done();
         should.not.exist(error);
-        should.exist(value);
+        value.should.eql([stubs.windows_vm]);
         done();
       });
     });
