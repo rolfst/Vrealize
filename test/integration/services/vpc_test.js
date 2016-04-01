@@ -58,7 +58,7 @@ describe('VPC Service Integration', function () {
     });
 
     it.only('should return a list', function (done) {
-      var request = nock(vpcConfig.baseUrl)
+      var request = nock(vpcConfig.baseUrl, {reqHeaders: {Authorization: 'Bearer ' + tokenValue}})
       .post(resourcesUrl)
       .reply(200, []);
       target.list(credentials, null, function callback(error, value) {

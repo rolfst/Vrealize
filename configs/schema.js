@@ -59,7 +59,7 @@ module.exports = {
     baseUrl: {
       doc: 'Base url to kpn vpc',
       format: String,
-      default: 'https://vpc.kpnvdc.nl'
+      default: 'https://vpc.kpnvdc.nl:443'
     },
     requestAttemptMax: {
       doc: 'Number of attemps to try a call to vpc',

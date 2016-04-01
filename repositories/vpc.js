@@ -17,9 +17,9 @@ var baseUrl = vpcConfig.baseUrl;
 var loginPath = '/identity/api/tokens';
 var resourcesPath = '/catalog-service/api/consumer/resources?withExtendedData=true';
 
-var headers = {headers: {
+var headers = {
   'Content-Type': 'application/json'
-}};
+};
 var loginDefaults = {
   url: baseUrl + loginPath,
   method: 'POST',
@@ -109,12 +109,13 @@ function login(options, attempt) {
 }
 
 function fetchAllinstances(token, options) {
-  var resourceHeaders = _.defaults({}, headers, {Authorization: 'Bearer ' + token});
+  var resourceHeaders = _.defaults({}, headers);
+  resourceHeaders = _.defaults(resourceHeaders, {Authorization: 'Bearer ' + token});
   var body = _.pick(options, []);
   var httpOptions = _.defaults({},
                                {body: body},
-                               resourcesDefaults,
-                               resourceHeaders);
+                               resourcesDefaults);
+  httpOptions.headers = resourceHeaders;
   request(httpOptions).then(function (response) {
     return response;
   })
