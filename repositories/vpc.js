@@ -14,6 +14,7 @@ var UNAUTHORIZED = 401;
 
 var baseUrl = vpcConfig.baseUrl;
 var loginPath = '/identity/api/tokens';
+var resourcesPath = '/api/consumer/resources/';
 
 var loginDefaults = {
   url: baseUrl + loginPath,
@@ -103,6 +104,19 @@ function fetchAllinstances(token, options, attempt) {
   return [token, options];
 }
 
+function fetchInstance(token, resourceId) {
+  var httpOptions = {
+    url: baseUrl + resourcesPath + resourceId,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    json: true,
+    method: 'GET'
+  };
+
+  return request(httpOptions);
+}
+
 function listAsync(filter, pagination) {
   var filteredProps = ['username', 'password', 'tenant'];
   var credentials = _.pick(filter, filteredProps);
@@ -112,7 +126,16 @@ function listAsync(filter, pagination) {
   });
 }
 
+function getAsync(filter) {
+  var filteredProps = ['username', 'password', 'tenant'];
+  var credentials = _.pick(filter, filteredProps);
+  return login(credentials).then(function (token) {
+    return fetchInstance(token, filter.resourceId);
+  });
+}
+
 module.exports = {
   login: login,
-  listAsync: listAsync
+  listAsync: listAsync,
+  getAsync: getAsync
 };
