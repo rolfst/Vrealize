@@ -109,12 +109,6 @@ describe('VPC Service Integration', function () {
   });
 
   describe('#get', function () {
-        done();
-      });
-    });
-  });
-
-  describe('#get', function () {
     var params;
     var tokenValue = '#$#$#cdd^3@!fe9203&8Az==';
 
