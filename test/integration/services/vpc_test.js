@@ -1,5 +1,6 @@
 'use strict';
 
+var nock = require('nock');
 var target = require('../../../services/vpc');
 var repoHelper = require('../../repository_helper');
 var config = require('../../../config');
@@ -11,11 +12,10 @@ logger = logger.getLogger('vpc integration');
 var clearDB = require('mocha-mongoose');
 var _ = require('lodash');
 var moment = require('moment');
-var nock = require('nock');
 var chai = require('chai');
 var should = chai.should();
 
-var resourcesUrl = '/catalog-service/api/consumer/resources?withExtendedData=true';
+var resourcesPath = '/catalog-service/api/consumer/resources/';
 
 clearDB(dbUri);
 nock.disableNetConnect();
@@ -57,19 +57,17 @@ describe('VPC Service Integration', function () {
       });
     });
 
-    // it.only('should return a list', function (done) {
-    //   var request = nock(vpcConfig.baseUrl)
-    //   .post(resourcesUrl)
-    //   .reply(200, []);
-    //   target.list(credentials, null, function callback(error, value) {
-    //     request.done();
-    //     logger.debug('%j', error);
-    //     should.not.exist(error);
-    //     should.exist(value);
-    //     value.should.be.empty; //eslint-disable-line
-    //     done();
-    //   });
-    // });
+    it.only('should return a list', function (done) {
+      var request = nock(vpcConfig.baseUrl)
+      .get(resourcesPath + '?withExtendedData=true')
+      .reply(200, []);
+      target.list(credentials, null, function callback(error, value) {
+        request.done();
+        should.not.exist(error);
+        should.exist(value);
+        done();
+      });
+    });
   });
 
   describe('#get', function () {
@@ -91,10 +89,6 @@ describe('VPC Service Integration', function () {
           err.code.should.equal(400);
           done();
         });
-      });
-    });
-  });
-});
       });
     });
   });
