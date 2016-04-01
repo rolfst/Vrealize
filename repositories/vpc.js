@@ -58,13 +58,24 @@ function login(options, attempt) {
       if (!_.includes([401, 400], err.statusCode)) { //eslint-disable-line no-magic-numbers
         if (err.statusCode) {
           throw getError(err.statusCode,
-                         'Unexpected response from vpc: ' + _.first(err.error.errors).message);
+                         'Unexpected response from vpc: ' + err.error.errors.map(function (error) {
+                           return error.message;
+                         })
+                         .reduce(function (accValue, currValue) {
+                           return currValue ? accValue + ', ' + currValue : accValue;
+                         }));
         }
         throw getError('500', err.message);
 
       }
       if (attempt >= vpcConfig.requestAttemptMax) {
-        throw getError(err.statusCode, _.first(err.error.errors).message);
+        throw getError(err.statusCode,
+                       err.error.errors.map(function (obj) {
+                         return obj.message;
+                       })
+                      .reduce(function (accValue, currValue) {
+                        return currValue ? accValue + ', ' + currValue : accValue;
+                      }));
       }
       return login(options, attempt + 1);
     });
@@ -72,7 +83,14 @@ function login(options, attempt) {
   .catch(function (reason) {
     if (!reason.statusCode) {throw reason;}
     var error = getError(reason.statusCode,
-                         'Unexpected response from vpc: ' + _.first(reason.error.errors).message);
+                         'Unexpected response from vpc: '
+                         + reason.error.errors.map(function (obj) {
+                           return obj.message;
+                         })
+                         .reduce(function (accValue, currValue) {
+                           return currValue ? accValue + ', ' + currValue : accValue;
+                         }));
+
     throw error;
   });
 }
