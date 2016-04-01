@@ -75,7 +75,7 @@ describe('vpc proxy', function () {
       });
     });
     it('should fail when no token is created', function (done) {
-      repoHelper.createOne({tenant: '', expiry: '', token: ''}).catch(function (e) {
+      repoHelper.createOne({externalId: '', expiry: '', token: ''}).catch(function (e) {
         should.exist(e);
         e.message.should.eql('Token validation failed');
         done();
@@ -141,7 +141,7 @@ describe('vpc proxy', function () {
     var credentials = {
       username: 'storedToken',
       password: 'just a password',
-      tenant: 'storedToken'
+      externalId: 'storedToken'
     };
     afterEach(function (done) {
       clearDB(dbUri);
@@ -162,7 +162,7 @@ describe('vpc proxy', function () {
       var newCredentials = {
         username: username,
         password: 'besafe',
-        tenant: 'previouslyUnstored'
+        externalId: 'previouslyUnstored'
       };
       var request = nock(vpcConfig.baseUrl)
       .post(loginPath)
@@ -181,7 +181,7 @@ describe('vpc proxy', function () {
       var newCredentials = {
         username: username,
         password: 'besafe',
-        tenant: 'previouslyUnstored'
+        externalId: 'previouslyUnstored'
       };
       vpc.login(newCredentials).then(function (token) {
         request.done();

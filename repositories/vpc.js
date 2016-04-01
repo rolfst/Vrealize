@@ -48,10 +48,15 @@ function login(options) {
   return verifyCredentials(options)
   .spread(function (credentials, token) {
     if (token) {return token;}
-    var postOptions = {method: 'POST', body: credentials};
+    var vpcPayload = {
+      tenant: credentials.externalId,
+      username: credentials.username,
+      password: credentials.password
+    };
+    var postOptions = {method: 'POST', body: vpcPayload};
     var httpOptions = _.defaults({}, loginDefaults, defaultHeaders, postOptions);
     return httpRequest(httpOptions).then(function (body) {
-      var storableCredentials = _.pick(credentials, ['username', 'tenant']);
+      var storableCredentials = _.pick(credentials, ['username']);
       var result = {
         token: body.id,
         expiry: body.expiry

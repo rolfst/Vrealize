@@ -29,7 +29,7 @@ describe('VPC Service Integration', function () {
       credentials = {
         username: 'storedToken',
         password: 'just a password',
-        tenant: 'storedToken'
+        externalId: 'storedToken'
       };
       var token = _.merge({},
         {
@@ -41,7 +41,7 @@ describe('VPC Service Integration', function () {
       });
     });
 
-    _.each(['tenant', 'username', 'password'], function (param) {
+    _.each(['externalId', 'username', 'password'], function (param) {
       it('requires ' + param, function (done) {
         delete credentials[param];
         target.list(credentials, null, function (err) {
@@ -114,14 +114,14 @@ describe('VPC Service Integration', function () {
 
     beforeEach(function () {
       params = {
-        tenant: 'someTenant',
+        externalId: 'someTenant',
         username: 'someUser',
         password: 'somePass',
         resourceId: 'someResourceId'
       };
     });
 
-    _.each(['tenant', 'username', 'password', 'resourceId'], function (param) {
+    _.each(['externalId', 'username', 'password', 'resourceId'], function (param) {
       it('requires ' + param, function (done) {
         delete params[param];
         target.get(params, null, function (err) {
@@ -135,13 +135,13 @@ describe('VPC Service Integration', function () {
       var credentials;
       beforeEach(function (done) {
         params = {
-          tenant: 'someTenant',
+          externalId: 'someTenant',
           username: 'someUser',
           password: 'somePass',
           resourceId: 'someResourceId'
         };
         credentials = {
-          tenant: 'someTenant',
+          externalId: 'someTenant',
           username: 'someUser',
           password: 'somePass'
         };

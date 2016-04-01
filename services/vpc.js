@@ -8,7 +8,7 @@ var retry = require('bluebird-retry');
 
 var defaultPagination = {limit: 10, offset: 0};
 var paginationProperties = ['limit', 'offset'];
-var requiredParams = ['tenant', 'username', 'password'];
+var requiredParams = ['externalId', 'username', 'password'];
 var BAD_REQUEST = 400;
 var UNAUTHORIZED = 401;
 
@@ -50,7 +50,7 @@ function tryGet(filter) {
 
 function list(payload, message, callback) {
   var filter = _.pick(payload, requiredParams);
-  if (!filter.username || !filter.password || !filter.tenant) {
+  if (!filter.username || !filter.password || !filter.externalId) {
     return callback(getError(BAD_REQUEST, 'Please provide credentials'), null);
   }
   var pagination = _.pick(payload, paginationProperties);
@@ -63,7 +63,7 @@ function list(payload, message, callback) {
 
 function get(payload, headers, callback) {
   var filter = _.pick(payload, requiredParams.concat('resourceId'));
-  if (!filter.username || !filter.password || !filter.tenant || !filter.resourceId) {
+  if (!filter.username || !filter.password || !filter.externalId || !filter.resourceId) {
     return callback(getError(BAD_REQUEST, 'Please provide credentials'), null);
   }
   return retry(function () {
