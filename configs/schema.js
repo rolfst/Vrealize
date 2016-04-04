@@ -90,5 +90,12 @@ module.exports = {
       format: String,
       default: 'http://10.151.233.196:3128'
     }
+  },
+  httpRequestConfig: {
+    timeout: {
+      doc: 'Timeout for HTTP requests',
+      format: 'int',
+      default: 1000
+    }
   }
 };
