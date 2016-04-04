@@ -80,7 +80,8 @@ function listAsync(filter, pagination) {
   var resourceHeaders = _.defaults({}, defaultHeaders);
   resourceHeaders = _.defaults({}, resourceHeaders, {Authorization: 'Bearer ' + token});
   var body = _.pick(options, []);
-  var tempQuery = _.defaults({}, body, paging, {withExtendedData: true});
+  var $filter = 'resourceType%2Fname%20eq%20%27Virtual%20Machine%27';
+  var tempQuery = _.defaults({}, body, paging, {withExtendedData: true, $filter: $filter});
   var query = _.keys(tempQuery).sort().map(function (key) {
     return key + '=' + tempQuery[key];
   }).join('&');
