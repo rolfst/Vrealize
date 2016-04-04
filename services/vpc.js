@@ -11,22 +11,24 @@ var paginationProperties = ['limit', 'offset'];
 var requiredParams = ['externalId', 'username', 'password'];
 var BAD_REQUEST = 400;
 var UNAUTHORIZED = 401;
+var SERVER_ERROR = 500;
 
 function handleError(err) {
-  if (err.statusCode !== UNAUTHORIZED) {
-    throw new retry.StopError(err);
+  if (err.statusCode || err.failure) {
+    var normalizedError = err.failure || err;
+    if (!_.includes([BAD_REQUEST, UNAUTHORIZED], normalizedError.statusCode)) {
+      throw new retry.StopError(err);
+    }
   }
   throw err;
 }
 
 function handleMaxAttemptsError(err) {
-  if (err.statusCode) {
-    throw getError(err.statusCode);
+  if (err.statusCode || err.failure) {
+    var normalizedError = err.failure || err;
+    throw getError(normalizedError.statusCode, normalizedError.error.errors[0].message);
   }
-  if (err.failure && err.failure.statusCode) {
-    throw getError(err.failure.statusCode);
-  }
-  throw err;
+  throw getError(SERVER_ERROR, 'Unknown error occurred');
 }
 
 function tryList(filter, pagination) {

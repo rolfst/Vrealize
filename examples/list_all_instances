@@ -14,7 +14,7 @@ var clientConfig = {
   // client identity (optional), defaults to 'client'
   identity: 'EXAMPLE_CLIENT',
   // client timeout in ms (optional), defaults to 1s
-  timeout: 1000
+  timeout: 5000
 };
 
 logger.debug('starting with \n%j', clientConfig);
