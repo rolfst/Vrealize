@@ -12,6 +12,7 @@ var requiredParams = ['externalId', 'username', 'password'];
 var BAD_REQUEST = 400;
 var UNAUTHORIZED = 401;
 var SERVER_ERROR = 500;
+var VPC_LOGIN_ERROR = 90135;
 
 function handleError(err) {
   if (err.statusCode || err.failure) {
@@ -26,7 +27,16 @@ function handleError(err) {
 function handleMaxAttemptsError(err) {
   if (err.statusCode || err.failure) {
     var normalizedError = err.failure || err;
-    throw getError(normalizedError.statusCode || SERVER_ERROR, normalizedError.message);
+    var message = normalizedError.message;
+    var statusCode = normalizedError.statusCode || SERVER_ERROR;
+    if (_.hasIn(normalizedError, 'error.errors')) {
+      var error = normalizedError.error.errors[0];
+      message = error.message;
+      if (error.code === VPC_LOGIN_ERROR) {
+        statusCode = UNAUTHORIZED;
+      }
+    }
+    throw getError(statusCode, message);
   }
   throw getError(SERVER_ERROR, 'Unknown error occurred');
 }
