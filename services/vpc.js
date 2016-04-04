@@ -27,13 +27,13 @@ function handleError(err) {
 function handleMaxAttemptsError(err) {
   if (err.statusCode || err.failure) {
     var normalizedError = err.failure || err;
-    var message = normalizedError.message;
+    var message = 'VPC Error';
     var statusCode = normalizedError.statusCode || SERVER_ERROR;
-    if (_.hasIn(normalizedError, 'error.errors')) {
-      var error = normalizedError.error.errors[0];
-      message = error.message;
+    if (_.has(normalizedError.error, 'errors')) {
+      var error = _.first(normalizedError.error.errors);
       if (error.code === VPC_LOGIN_ERROR) {
         statusCode = UNAUTHORIZED;
+        message = 'Unable to login to VPC';
       }
     }
     throw getError(statusCode, message);
