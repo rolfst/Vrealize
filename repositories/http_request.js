@@ -5,13 +5,10 @@ var request = require('request-promise');
 var HttpsProxyAgent = require('https-proxy-agent');
 var _ = require('lodash');
 
-var proxyOptions = {};
+var proxyOptions = { timeout: 1000 };
 if (proxyConfig.enabled) {
   var agent = new HttpsProxyAgent(proxyConfig.address);
-  proxyOptions = {
-    agent: agent,
-    timeout: 1000
-  };
+  proxyOptions.agent = agent;
 }
 
 function httpRequest(options) {
