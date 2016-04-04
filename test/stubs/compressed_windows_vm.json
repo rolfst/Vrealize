@@ -1,7 +1,7 @@
 {
 	"id": "98c454e5-0f9e-4694-b985-0b4c153d87b5",
 	"name": "avlpg7001a",
-	"requiredEntries": {
+	"resourceData": {
 		"entries": [{
 			"key": "MachineGuestOperatingSystem",
 			"value": {
