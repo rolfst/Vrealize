@@ -9,7 +9,8 @@ var proxyOptions = {};
 if (proxyConfig.enabled) {
   var agent = new HttpsProxyAgent(proxyConfig.address);
   proxyOptions = {
-    agent: agent
+    agent: agent,
+    timeout: 1000
   };
 }
 
