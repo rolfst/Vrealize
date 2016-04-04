@@ -54,7 +54,7 @@ describe('VPC Service Integration', function () {
     it('should return a list', function (done) {
       var expectedPayload = [stubs.compressed_windows_vm];
       var request = nock(vpcConfig.baseUrl)
-      .get(resourcesPath + '?withExtendedData=true')
+      .get(resourcesPath + '?$skip=0&$top=10&withExtendedData=true')
       .reply(200, {content: [stubs.windows_vm]});
       target.list(credentials, null, function callback(error, value) {
         request.done();
@@ -66,7 +66,7 @@ describe('VPC Service Integration', function () {
 
     it('should imediately fail when an error other then 401 happens', function (done) {
       var request = nock(vpcConfig.baseUrl)
-      .get(resourcesPath + '?withExtendedData=true')
+      .get(resourcesPath + '?$skip=0&$top=10&withExtendedData=true')
       .reply(500);
       target.list(credentials, null, function callback(error) {
         request.done();
@@ -78,11 +78,11 @@ describe('VPC Service Integration', function () {
     it('retries if 401', function (done) {
       var expectedPayload = [stubs.compressed_windows_vm];
       var request = nock(vpcConfig.baseUrl)
-      .get(resourcesPath + '?withExtendedData=true')
+      .get(resourcesPath + '?$skip=0&$top=10&withExtendedData=true')
       .times(1)
       .reply(401);
       var request2 = nock(vpcConfig.baseUrl)
-      .get(resourcesPath + '?withExtendedData=true')
+      .get(resourcesPath + '?$skip=0&$top=10&withExtendedData=true')
       .times(1)
       .reply(200, {content: [stubs.windows_vm]});
       target.list(credentials, null, function callback(error, value) {
@@ -96,7 +96,7 @@ describe('VPC Service Integration', function () {
 
     it('returns 401 if attempt limit reached', function (done) {
       var request = nock(vpcConfig.baseUrl)
-      .get(resourcesPath + '?withExtendedData=true')
+      .get(resourcesPath + '?$skip=0&$top=10&withExtendedData=true')
       .times(vpcConfig.requestAttemptMax)
       .reply(401);
       target.list(credentials, null, function callback(error) {
@@ -106,6 +106,33 @@ describe('VPC Service Integration', function () {
       });
     });
 
+    describe('pagination', function () {
+      it('should paginate using the default limit and offset parameter', function (done) {
+        var expectedPayload = [stubs.compressed_windows_vm];
+        var request = nock(vpcConfig.baseUrl)
+        .get(resourcesPath + '?$skip=0&$top=10&withExtendedData=true')
+        .reply(200, {content: [stubs.windows_vm]});
+        target.list(credentials, null, function callback(error, value) {
+          request.done();
+          should.not.exist(error);
+          value.should.eql(expectedPayload);
+          done();
+        });
+      });
+      it('should paginate using the limit and offset parameter', function (done) {
+        var expectedPayload = [stubs.compressed_windows_vm];
+        var request = nock(vpcConfig.baseUrl)
+        .get(resourcesPath + '?$skip=2&$top=1&withExtendedData=true')
+        .reply(200, {content: [stubs.windows_vm]});
+        var payload = _.defaults({}, credentials, {limit: 1, offset: 2});
+        target.list(payload, null, function callback(error, value) {
+          request.done();
+          should.not.exist(error);
+          value.should.eql(expectedPayload);
+          done();
+        });
+      });
+    });
   });
 
   describe('#get', function () {

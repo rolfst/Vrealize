@@ -12,7 +12,7 @@ var util = require('util');
 
 var baseUrl = vpcConfig.baseUrl;
 var loginPath = '/identity/api/tokens';
-var resourcesPath = '%s/catalog-service/api/consumer/resources/?withExtendedData=true';
+var resourcesPath = '%s/catalog-service/api/consumer/resources/';
 var resourcePath = '%s/catalog-service/api/consumer/resources/%s';
 
 var defaultHeaders = {
@@ -72,13 +72,22 @@ function login(options) {
 
 function listAsync(filter, pagination) {
   var token = filter.token;
+  var paging = {
+    $skip: pagination.offset || 0,
+    $top: pagination.limit || '10'
+  };
   var options = _.defaults({}, filter, pagination);
   var resourceHeaders = _.defaults({}, defaultHeaders);
   resourceHeaders = _.defaults({}, resourceHeaders, {Authorization: 'Bearer ' + token});
   var body = _.pick(options, []);
+  var tempQuery = _.defaults({}, body, paging, {withExtendedData: true});
+  var query = _.keys(tempQuery).sort().map(function (key) {
+    return key + '=' + tempQuery[key];
+  }).join('&');
   var httpOptions = _.defaults({},
                                {body: body},
                                resourcesDefaults);
+  httpOptions.url = resourcesDefaults.url + '?' + query;
   httpOptions.headers = resourceHeaders;
   return httpRequest(httpOptions)
   .then(function (response) {
