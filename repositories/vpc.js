@@ -59,7 +59,7 @@ function login(options) {
       var storableCredentials = _.pick(credentials, ['username']);
       var result = {
         token: body.id,
-        expiry: body.expiry
+        expiry: body.expires
       };
       var baseToken = _.merge(storableCredentials, result);
       return Token.update({username: credentials.username}, baseToken, {upsert: true})
