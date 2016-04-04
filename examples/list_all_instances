@@ -20,7 +20,7 @@ var clientConfig = {
 logger.debug('starting with \n%j', clientConfig);
 
 var credentials = {
-  tenant: vpcConfig.externalId,
+  externalId: vpcConfig.tenant,
   username: vpcConfig.username,
   password: vpcConfig.password
 };
