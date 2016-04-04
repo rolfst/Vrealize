@@ -27,19 +27,29 @@ module.exports = {
   },
   logging: {
     level: {
-      doc: 'Active log level',
-      format: String,
+      doc: 'Logger facade active logging level',
+      format: ['trace', 'debug', 'info', 'warn', 'error'],
       default: 'debug'
     },
     timeFormat: {
-      doc: 'Timestamp format used, using moment formatter',
+      doc: 'Logger facade time format',
       format: String,
       default: 'YYYY-MM-DD HH:mm:ss'
     },
     messageFormat: {
-      doc: 'Log message format used',
+      doc: 'Logger facade message format',
       format: String,
       default: '%time | %logger::%level - %msg'
+    },
+    json: {
+      doc: 'Use json format',
+      format: Boolean,
+      default: true
+    },
+    prettyPrint: {
+      doc: 'Pretty print log',
+      format: Boolean,
+      default: false
     }
   },
   database: {

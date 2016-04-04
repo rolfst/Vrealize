@@ -13,7 +13,7 @@ function toCompactPayload(payload) {
   return {
     id: payload.id,
     name: payload.name,
-    requiredEntries: {
+    resourceData: {
       entries: entries
     }
   };
