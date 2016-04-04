@@ -26,7 +26,7 @@ function handleError(err) {
 function handleMaxAttemptsError(err) {
   if (err.statusCode || err.failure) {
     var normalizedError = err.failure || err;
-    throw getError(normalizedError.statusCode, normalizedError.error.errors[0].message);
+    throw getError(normalizedError.statusCode, normalizedError.message);
   }
   throw getError(SERVER_ERROR, 'Unknown error occurred');
 }
