@@ -44,8 +44,8 @@ function handleMaxAttemptsError(err) {
 function tryList(filter, pagination) {
   return vpcRepo.login(filter)
     .then(function (token) {
-      var options = _.defaults({}, filter, pagination, {token: token});
-      return vpcRepo.listAsync(options);
+      var options = _.defaults({}, filter, {token: token});
+      return vpcRepo.listAsync(options, pagination);
     }).catch(handleError);
 }
 
