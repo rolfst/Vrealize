@@ -19,8 +19,14 @@ var clientConfig = {
 
 logger.debug('starting with \n%j', clientConfig);
 
+var credentials = {
+  externalId: vpcConfig.tenant,
+  username: vpcConfig.username,
+  password: vpcConfig.password
+};
+
 var client = new ZSSClient(clientConfig);
-client.call('list', {tenant: vpcConfig.tenant, username: vpcConfig.username, password: vpcConfig.password})
+client.call('list', credentials)
   .then(function (response) {
     logger.debug('received => %j', response);
     return response.payload;
