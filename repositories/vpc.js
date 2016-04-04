@@ -3,29 +3,35 @@
 var vpcConfig = require('../config').get('vpcConfig');
 var logger = require('../logger');
 logger = logger.getLogger('Proxy');
-var request = require('request-promise');
 var Token = require('./dao/token');
-var getError = require('../lib/error');
 var moment = require('moment');
 var _ = require('lodash');
-
-var BAD_REQUEST = 400;
-var UNAUTHORIZED = 401;
+var toCompactPayload = require('./mapper');
+var httpRequest = require('./http_request');
+var util = require('util');
 
 var baseUrl = vpcConfig.baseUrl;
 var loginPath = '/identity/api/tokens';
+var resourcesPath = '%s/catalog-service/api/consumer/resources/?withExtendedData=true';
+var resourcePath = '%s/catalog-service/api/consumer/resources/%s';
 
+var defaultHeaders = {
+  'Content-Type': 'application/json'
+};
 var loginDefaults = {
   url: baseUrl + loginPath,
-  headers: {
-    'Content-Type': 'application/json'
-  },
+  method: 'POST',
+  json: true
+};
+var resourcesDefaults = {
+  url: util.format(resourcesPath, baseUrl),
+  method: 'GET',
   json: true
 };
 
 function isBeforeExpiryCutoff(date) {
   var now = moment();
-  return moment(date).isBefore(now.toISOString());
+  return moment(date).isBefore(now);
 }
 
 function verifyCredentials(credentials) {
@@ -38,16 +44,19 @@ function verifyCredentials(credentials) {
   });
 }
 
-function login(options, attempt) {
-  attempt = attempt || 1;
+function login(options) {
   return verifyCredentials(options)
   .spread(function (credentials, token) {
     if (token) {return token;}
-
-    var httpOptions = _.defaults({}, loginDefaults, {method: 'POST', body: credentials});
-    httpOptions.body = credentials;
-    return request(httpOptions).then(function (body) {
-      var storableCredentials = _.pick(credentials, ['username', 'tenant']);
+    var vpcPayload = {
+      tenant: credentials.externalId,
+      username: credentials.username,
+      password: credentials.password
+    };
+    var postOptions = {method: 'POST', body: vpcPayload};
+    var httpOptions = _.defaults({}, loginDefaults, defaultHeaders, postOptions);
+    return httpRequest(httpOptions).then(function (body) {
+      var storableCredentials = _.pick(credentials, ['username']);
       var result = {
         token: body.id,
         expiry: body.expiry
@@ -57,62 +66,42 @@ function login(options, attempt) {
       .then(function () {
         return body.id;
       });
-    }).catch(function (err) {
-      if (!_.includes([BAD_REQUEST, UNAUTHORIZED], err.statusCode)) {
-        if (err.statusCode) {
-          throw getError(err.statusCode,
-                         'Unexpected response from vpc: ' + err.error.errors.map(function (error) {
-                           return error.message;
-                         })
-                         .reduce(function (accValue, currValue) {
-                           return currValue ? accValue + ', ' + currValue : accValue;
-                         }));
-        }
-        throw getError('500', err.message);
-
-      }
-      if (attempt >= vpcConfig.requestAttemptMax) {
-        throw getError(err.statusCode,
-                       err.error.errors.map(function (obj) {
-                         return obj.message;
-                       })
-                      .reduce(function (accValue, currValue) {
-                        return currValue ? accValue + ', ' + currValue : accValue;
-                      }));
-      }
-      return login(options, attempt + 1);
     });
-  })
-  .catch(function (reason) {
-    if (!reason.statusCode) {throw reason;}
-    var error = getError(reason.statusCode,
-                         'Unexpected response from vpc: '
-                         + reason.error.errors.map(function (obj) {
-                           return obj.message;
-                         })
-                         .reduce(function (accValue, currValue) {
-                           return currValue ? accValue + ', ' + currValue : accValue;
-                         }));
-
-    throw error;
   });
-}
-
-function fetchAllinstances(token, options, attempt) {
-  attempt = attempt || 1;
-  return [token, options];
 }
 
 function listAsync(filter, pagination) {
-  var filteredProps = ['username', 'password', 'tenant'];
-  var credentials = _.pick(filter, filteredProps);
+  var token = filter.token;
   var options = _.defaults({}, filter, pagination);
-  return login(credentials).then(function (token) {
-    return fetchAllinstances(token, options);
+  var resourceHeaders = _.defaults({}, defaultHeaders);
+  resourceHeaders = _.defaults({}, resourceHeaders, {Authorization: 'Bearer ' + token});
+  var body = _.pick(options, []);
+  var httpOptions = _.defaults({},
+                               {body: body},
+                               resourcesDefaults);
+  httpOptions.headers = resourceHeaders;
+  return httpRequest(httpOptions)
+  .then(function (response) {
+    return response.content.map(toCompactPayload);
   });
+}
+
+function getAsync(filter) {
+  var token = filter.token;
+  var resourceId = filter.resourceId;
+  var resourceHeaders = _.defaults({}, defaultHeaders);
+  resourceHeaders = _.defaults({}, resourceHeaders, {Authorization: 'Bearer ' + token});
+  var httpOptions = {
+    url: util.format(resourcePath, baseUrl, resourceId),
+    headers: resourceHeaders,
+    json: true,
+    method: 'GET'
+  };
+  return httpRequest(httpOptions).then(toCompactPayload);
 }
 
 module.exports = {
   login: login,
-  listAsync: listAsync
+  listAsync: listAsync,
+  getAsync: getAsync
 };

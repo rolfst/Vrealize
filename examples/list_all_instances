@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+'use strict';
+
+var logger = require('../logger').getLogger('Get vpc example');
+var ZSSClient = require('zmq-service-suite-client');
+var config = require('../config');
+var vpcConfig = config.get('vpcConfig');
+
+var clientConfig = {
+  // broker frontend address
+  broker: 'tcp://127.0.0.1:7777',
+  // service unique identifier
+  sid: 'VPC',
+  // client identity (optional), defaults to 'client'
+  identity: 'EXAMPLE_CLIENT',
+  // client timeout in ms (optional), defaults to 1s
+  timeout: 1000
+};
+
+logger.debug('starting with \n%j', clientConfig);
+
+var client = new ZSSClient(clientConfig);
+client.call('list', {tenant: vpcConfig.tenant, username: vpcConfig.username, password: vpcConfig.password})
+  .then(function (response) {
+    logger.debug('received => %j', response);
+    return response.payload;
+  })
+  .then(function (vpc) {
+    logger.debug('GET received => %j', vpc);
+  })
+  .fail(function (error) {
+    logger.debug('error => ', error);
+  });

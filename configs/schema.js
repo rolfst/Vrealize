@@ -78,5 +78,17 @@ module.exports = {
       doc: 'Base url to kpn vpc',
       format: String,
       default: 'WD683??ii184'}
+  },
+  proxyConfig: {
+    enabled: {
+      doc: 'Should a proxy be used when connecting to VPC',
+      format: Boolean,
+      default: true
+    },
+    address: {
+      doc: 'The proxy address',
+      format: String,
+      default: 'http://10.151.233.196:3128'
+    }
   }
 };

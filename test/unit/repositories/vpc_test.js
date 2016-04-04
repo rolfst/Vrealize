@@ -13,7 +13,6 @@ var should = chai.should();
 
 var repoHelper = require('../../repository_helper');
 var stubs = require('../../stubs');
-var blueprints = require('../../blueprints');
 var config = require('../../../config');
 var vpcConfig = config.get('vpcConfig');
 var vpc = rewire('../../../repositories/vpc');
@@ -76,7 +75,7 @@ describe('vpc proxy', function () {
       });
     });
     it('should fail when no token is created', function (done) {
-      repoHelper.createOne({tenant: '', expiry: '', token: ''}).catch(function (e) {
+      repoHelper.createOne({externalId: '', expiry: '', token: ''}).catch(function (e) {
         should.exist(e);
         e.message.should.eql('Token validation failed');
         done();
@@ -142,7 +141,7 @@ describe('vpc proxy', function () {
     var credentials = {
       username: 'storedToken',
       password: 'just a password',
-      tenant: 'storedToken'
+      externalId: 'storedToken'
     };
     afterEach(function (done) {
       clearDB(dbUri);
@@ -163,7 +162,7 @@ describe('vpc proxy', function () {
       var newCredentials = {
         username: username,
         password: 'besafe',
-        tenant: 'previouslyUnstored'
+        externalId: 'previouslyUnstored'
       };
       var request = nock(vpcConfig.baseUrl)
       .post(loginPath)
@@ -171,44 +170,6 @@ describe('vpc proxy', function () {
       vpc.login(newCredentials).then(function (token) {
         request.done();
         token.should.eql(stubs.access_token.id);
-        done();
-      });
-    });
-    it('should handle a normal error from vpc', function (done) {
-      var username = 'previouslyUnstored';
-      var newCredentials = {
-        username: username,
-        password: 'besafe',
-        tenant: 'previouslyUnstored'
-      };
-      var errorRes = {errors: [{'message': 'forbidden'}]};
-      var request = nock(vpcConfig.baseUrl)
-      .post(loginPath)
-      .reply(404, errorRes);
-      vpc.login(newCredentials)
-      .catch(function (error) {
-        request.done();
-        error.code.should.eql(404);
-        error.developerMessage.should.eql('Unexpected response from vpc: ' + _.first(errorRes.errors).message);
-        done();
-      });
-    });
-    it('should handle a login request twice on error', function (done) {
-      var username = 'previouslyUnstored';
-      var newCredentials = {
-        username: username,
-        password: 'besafe',
-        tenant: 'previouslyUnstored'
-      };
-      var errorRes = blueprints.authentication_error;
-      var request = nock(vpcConfig.baseUrl)
-      .post(loginPath).times(2)
-      .reply(401, errorRes);
-      vpc.login(newCredentials)
-      .catch(function (error) {
-        request.done();
-        error.code.should.eql(401);
-        error.developerMessage.should.eql(_.first(errorRes.errors).message);
         done();
       });
     });
@@ -220,7 +181,7 @@ describe('vpc proxy', function () {
       var newCredentials = {
         username: username,
         password: 'besafe',
-        tenant: 'previouslyUnstored'
+        externalId: 'previouslyUnstored'
       };
       vpc.login(newCredentials).then(function (token) {
         request.done();
