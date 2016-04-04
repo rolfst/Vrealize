@@ -19,7 +19,7 @@ function handleError(err) {
   throw err;
 }
 
-function handleFinalError(err) {
+function handleMaxAttemptsError(err) {
   if (err.statusCode) {
     throw getError(err.statusCode);
   }
@@ -58,7 +58,7 @@ function list(payload, message, callback) {
   return retry(function () {
     return tryList(filter, pagination);
   }, { 'max_tries': vpcConfig.requestAttemptMax })
-    .catch(handleFinalError).asCallback(callback);
+    .catch(handleMaxAttemptsError).asCallback(callback);
 }
 
 function get(payload, headers, callback) {
@@ -69,7 +69,7 @@ function get(payload, headers, callback) {
   return retry(function () {
     return tryGet(filter);
   }, { 'max_tries': vpcConfig.requestAttemptMax })
-    .catch(handleFinalError).asCallback(callback);
+    .catch(handleMaxAttemptsError).asCallback(callback);
 }
 
 var service = {
