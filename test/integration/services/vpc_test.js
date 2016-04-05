@@ -94,6 +94,28 @@ describe('VPC Service Integration', function () {
       });
     });
 
+    it('retries if 401 with VPC_LOGIN_ERROR', function (done) {
+      var request = nock(vpcConfig.baseUrl)
+      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
+      .times(1)
+      .reply(401);
+      var request2 = nock(vpcConfig.baseUrl)
+      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
+      .times(1)
+      .reply(401, {
+        statusCode: 401,
+        errors: [
+          {code: 90135,
+            message: 'bad login'
+          }]
+      });
+      target.list(credentials, null, function callback(error) {
+        request.done();
+        request2.done();
+        should.exist(error);
+        done();
+      });
+    });
     it('returns 401 if attempt limit reached', function (done) {
       var request = nock(vpcConfig.baseUrl)
       .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
