@@ -59,7 +59,7 @@ function login(options) {
       var storableCredentials = _.pick(credentials, ['username']);
       var result = {
         token: body.id,
-        expiry: body.expiry
+        expiry: body.expires
       };
       var baseToken = _.merge(storableCredentials, result);
       return Token.update({username: credentials.username}, baseToken, {upsert: true})
@@ -80,7 +80,8 @@ function listAsync(filter, pagination) {
   var resourceHeaders = _.defaults({}, defaultHeaders);
   resourceHeaders = _.defaults({}, resourceHeaders, {Authorization: 'Bearer ' + token});
   var body = _.pick(options, []);
-  var tempQuery = _.defaults({}, body, paging, {withExtendedData: true});
+  var $filter = 'resourceType%2Fname%20eq%20%27Virtual%20Machine%27';
+  var tempQuery = _.defaults({}, body, paging, {withExtendedData: true, $filter: $filter});
   var query = _.keys(tempQuery).sort().map(function (key) {
     return key + '=' + tempQuery[key];
   }).join('&');

@@ -190,6 +190,7 @@ describe('vpc proxy', function () {
       .then(function () {
         repoHelper.findByUsername(username, function (err, storedToken) {
           storedToken.username.should.eql(username);
+          storedToken.expiry.toISOString().should.eql(stubs.access_token.expires);
           done();
         });
       }).catch(function (e) {
