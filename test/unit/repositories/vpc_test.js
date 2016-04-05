@@ -24,7 +24,7 @@ var loginPath = '/identity/api/tokens';
 clearDB(dbUri);
 nock.disableNetConnect();
 
-describe('vpc proxy', function () {
+describe('vpc repository', function () {
   beforeEach(function (done) {
     if (mongoose.connection.db) { return done(); }
     mongoose.connect(dbUri, done);
