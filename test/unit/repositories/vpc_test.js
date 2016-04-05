@@ -124,7 +124,7 @@ describe('vpc proxy', function () {
         username: 'storedToken',
         password: 'just a password',
         token: tokenValue,
-        expiry: moment().subtract(1, 'hours').toDate()
+        expiry: moment().add(1, 'hours').toDate()
       };
 
       repoHelper.createOne(credentials).then(function () {
