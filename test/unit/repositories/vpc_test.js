@@ -24,7 +24,7 @@ var loginPath = '/identity/api/tokens';
 clearDB(dbUri);
 nock.disableNetConnect();
 
-describe('vpc proxy', function () {
+describe('vpc repository', function () {
   beforeEach(function (done) {
     if (mongoose.connection.db) { return done(); }
     mongoose.connect(dbUri, done);
@@ -124,7 +124,7 @@ describe('vpc proxy', function () {
         username: 'storedToken',
         password: 'just a password',
         token: tokenValue,
-        expiry: moment().subtract(1, 'hours').toDate()
+        expiry: moment().add(1, 'hours').toDate()
       };
 
       repoHelper.createOne(credentials).then(function () {

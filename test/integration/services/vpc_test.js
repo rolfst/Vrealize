@@ -34,7 +34,7 @@ describe('VPC Service Integration', function () {
       var token = _.merge({},
         {
           token: tokenValue,
-          expiry: moment().subtract(1, 'hours').toDate()
+          expiry: moment().add(1, 'hours').toDate()
         }, credentials);
       repoHelper.createOne(token).then(function () {
         done();
@@ -197,7 +197,7 @@ describe('VPC Service Integration', function () {
         var token = _.merge({},
           {
             token: tokenValue,
-            expiry: moment().subtract(1, 'hours').toDate()
+            expiry: moment().add(1, 'hours').toDate()
           }, credentials);
         repoHelper.createOne(token).then(function () {
           done();

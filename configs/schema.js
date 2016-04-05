@@ -83,11 +83,11 @@ module.exports = {
     username: {
       doc: 'Base url to kpn vpc',
       format: String,
-      default: 'ManagedServices'},
+      default: 'ManagedServices@vsphere.local'},
     password: {
       doc: 'Base url to kpn vpc',
       format: String,
-      default: 'WD683??ii184'}
+      default: 'TemporaryWorkar0und!'}
   },
   proxyConfig: {
     enabled: {

@@ -31,7 +31,7 @@ var resourcesDefaults = {
 
 function isBeforeExpiryCutoff(date) {
   var now = moment();
-  return moment(date).isBefore(now);
+  return moment(now).isBefore(date);
 }
 
 function verifyCredentials(credentials) {
@@ -59,7 +59,7 @@ function login(options) {
       var storableCredentials = _.pick(credentials, ['username']);
       var result = {
         token: body.id,
-        expiry: body.expires
+        expiry: moment(body.expires).toDate()
       };
       var baseToken = _.merge(storableCredentials, result);
       return Token.update({username: credentials.username}, baseToken, {upsert: true})

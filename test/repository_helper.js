@@ -14,7 +14,7 @@ function getDummyToken() {
 }
 
 function getExpiredToken() {
-  var expired = moment().add(1, 'hours').toDate();
+  var expired = moment().subtract(1, 'hours').toDate();
   return {
     token: 'aabe0119ce33',
     username: 'expiredToken',
