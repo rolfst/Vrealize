@@ -34,10 +34,24 @@ function isBeforeExpiryCutoff(date) {
   return moment(now).isBefore(date);
 }
 
+function resetToken(username) {
+  logger.debug('Reseting token for %s', username);
+  return Token.remove({username: username})
+    .then(function () {
+      return true;
+    })
+    .catch(function (tokenErr) {
+      logger.error(tokenErr, 'Unable to remove token');
+      throw tokenErr;
+    });
+}
+
 function verifyCredentials(credentials) {
   return Token.findOne({username: credentials.username}).then(function (token) {
+
     if (!token) {return [credentials, null];}
     if (isBeforeExpiryCutoff(token.expiry)) {
+      logger.debug('Found token %s', token.token);
       return [credentials, token.token];
     }
     return [credentials, null];
@@ -48,6 +62,7 @@ function login(options) {
   return verifyCredentials(options)
   .spread(function (credentials, token) {
     if (token) {return token;}
+    logger.debug('No token found for %s', credentials.username);
     var vpcPayload = {
       tenant: credentials.externalId,
       username: credentials.username,
@@ -117,6 +132,7 @@ function getAsync(filter) {
 
 module.exports = {
   login: login,
+  resetToken: resetToken,
   listAsync: listAsync,
   getAsync: getAsync
 };

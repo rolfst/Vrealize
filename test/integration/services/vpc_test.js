@@ -16,6 +16,7 @@ var moment = require('moment');
 var chai = require('chai');
 var should = chai.should();
 
+var loginPath = '/identity/api/tokens';
 var resourcesPath = '/catalog-service/api/consumer/resources/';
 
 clearDB(dbUri);
@@ -76,6 +77,9 @@ describe('VPC Service Integration', function () {
     });
 
     it('retries if 401', function (done) {
+      var loginRequest = nock(vpcConfig.baseUrl)
+      .post(loginPath)
+      .reply(200, stubs.dummy_access_token);
       var expectedPayload = [stubs.compressed_windows_vm];
       var request = nock(vpcConfig.baseUrl)
       .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
@@ -88,6 +92,7 @@ describe('VPC Service Integration', function () {
       target.list(credentials, null, function callback(error, value) {
         request.done();
         request2.done();
+        loginRequest.done();
         should.not.exist(error);
         value.should.eql(expectedPayload);
         done();
@@ -95,6 +100,9 @@ describe('VPC Service Integration', function () {
     });
 
     it('retries if 401 with VPC_LOGIN_ERROR', function (done) {
+      var loginRequest = nock(vpcConfig.baseUrl)
+      .post(loginPath)
+      .reply(200, stubs.dummy_access_token);
       var request = nock(vpcConfig.baseUrl)
       .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
       .times(1)
@@ -112,17 +120,23 @@ describe('VPC Service Integration', function () {
       target.list(credentials, null, function callback(error) {
         request.done();
         request2.done();
+        loginRequest.done();
         should.exist(error);
         done();
       });
     });
     it('returns 401 if attempt limit reached', function (done) {
+      var loginRequest = nock(vpcConfig.baseUrl)
+      .post(loginPath)
+      .reply(200, stubs.dummy_access_token);
       var request = nock(vpcConfig.baseUrl)
       .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
       .times(vpcConfig.requestAttemptMax)
       .reply(401);
       target.list(credentials, null, function callback(error) {
+        loginRequest.done();
         request.done();
+        logger.debug(null, '%j', error);
         error.code.should.eq(401);
         done();
       });
