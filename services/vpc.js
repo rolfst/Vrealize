@@ -49,7 +49,12 @@ function tryList(filter, pagination) {
     .then(function (token) {
       var options = _.defaults({}, filter, {token: token});
       return vpcRepo.listAsync(options, pagination);
-    }).catch(handleError);
+    }).catch(function (err) {
+      return vpcRepo.resetToken(filter.username)
+        .then(function () {
+          handleError(err);
+        });
+    });
 }
 
 function tryGet(filter) {
@@ -60,7 +65,12 @@ function tryGet(filter) {
         resourceId: filter.resourceId
       };
       return vpcRepo.getAsync(options);
-    }).catch(handleError);
+    }).catch(function (err) {
+      return vpcRepo.resetToken(filter.username)
+        .then(function () {
+          handleError(err);
+        });
+    });
 }
 
 function list(payload, message, callback) {
