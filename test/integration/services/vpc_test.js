@@ -65,6 +65,24 @@ describe('VPC Service Integration', function () {
       });
     });
 
+    it('should login and return a list if forceLogin is set', function (done) {
+      var expectedPayload = [stubs.compressed_windows_vm];
+      var loginRequest = nock(vpcConfig.baseUrl)
+      .post(loginPath)
+      .reply(200, stubs.dummy_access_token);
+      var request = nock(vpcConfig.baseUrl)
+      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
+      .reply(200, {content: [stubs.windows_vm]});
+      credentials.forceLogin = true;
+      target.list(credentials, null, function callback(error, value) {
+        request.done();
+        loginRequest.done();
+        should.not.exist(error);
+        value.should.eql(expectedPayload);
+        done();
+      });
+    });
+
     it('should imediately fail when an error other then 401 happens', function (done) {
       var request = nock(vpcConfig.baseUrl)
       .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
