@@ -56,6 +56,7 @@ function login(options) {
     var postOptions = {method: 'POST', body: vpcPayload};
     var httpOptions = _.defaults({}, loginDefaults, defaultHeaders, postOptions);
     return httpRequest(httpOptions).then(function (body) {
+      logger.debug(body, 'Logged into VPC');
       var storableCredentials = _.pick(credentials, ['username']);
       var result = {
         token: body.id,
@@ -92,6 +93,7 @@ function listAsync(filter, pagination) {
   httpOptions.headers = resourceHeaders;
   return httpRequest(httpOptions)
   .then(function (response) {
+    logger.debug(body, 'VPC list has replied');
     return response.content.map(toCompactPayload);
   });
 }
@@ -107,7 +109,10 @@ function getAsync(filter) {
     json: true,
     method: 'GET'
   };
-  return httpRequest(httpOptions).then(toCompactPayload);
+  return httpRequest(httpOptions).then(function (body) {
+    logger.debug(body, 'VPC get has replied');
+    return toCompactPayload(body);
+  });
 }
 
 module.exports = {

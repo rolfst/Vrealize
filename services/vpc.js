@@ -5,6 +5,7 @@ var vpcConfig = require('../config').get('vpcConfig');
 var _ = require('lodash');
 var getError = require('../lib/error.js');
 var retry = require('bluebird-retry');
+var logger = require('../logger').getLogger('VPC Service');
 
 var defaultPagination = {limit: 10, offset: 0};
 var paginationProperties = ['limit', 'offset'];
@@ -15,6 +16,7 @@ var SERVER_ERROR = 500;
 var VPC_LOGIN_ERROR = 90135;
 
 function handleError(err) {
+  logger.debug(err, 'Cannot reach VPC');
   if (err.statusCode || err.failure) {
     var normalizedError = err.failure || err;
     if (!_.includes([BAD_REQUEST, UNAUTHORIZED], normalizedError.statusCode)) {
@@ -25,9 +27,10 @@ function handleError(err) {
 }
 
 function handleMaxAttemptsError(err) {
+  logger.error(err, 'VPC is unreachable');
   if (err.statusCode || err.failure) {
     var normalizedError = err.failure || err;
-    var message = 'VPC Error';
+    var message = 'Unable to connect to VPC';
     var statusCode = normalizedError.statusCode || SERVER_ERROR;
     if (_.has(normalizedError.error, 'errors')) {
       var error = _.first(normalizedError.error.errors);
