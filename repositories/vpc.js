@@ -36,14 +36,7 @@ function isBeforeExpiryCutoff(date) {
 
 function resetToken(username) {
   logger.debug('Reseting token for %s', username);
-  return Token.remove({username: username})
-    .then(function () {
-      return true;
-    })
-    .catch(function (tokenErr) {
-      logger.error(tokenErr, 'Unable to remove token');
-      throw tokenErr;
-    });
+  return Token.remove({username: username});
 }
 
 function verifyCredentials(credentials) {

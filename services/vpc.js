@@ -44,16 +44,20 @@ function handleMaxAttemptsError(err) {
   throw getError(SERVER_ERROR, 'Unknown error occurred');
 }
 
+function resetTokenAndRetry(err, username) {
+  return vpcRepo.resetToken(username)
+    .then(function () {
+      handleError(err);
+    });
+}
+
 function tryList(filter, pagination) {
   return vpcRepo.login(filter)
     .then(function (token) {
       var options = _.defaults({}, filter, {token: token});
       return vpcRepo.listAsync(options, pagination);
     }).catch(function (err) {
-      return vpcRepo.resetToken(filter.username)
-        .then(function () {
-          handleError(err);
-        });
+      return resetTokenAndRetry(err, filter.username);
     });
 }
 
@@ -66,10 +70,7 @@ function tryGet(filter) {
       };
       return vpcRepo.getAsync(options);
     }).catch(function (err) {
-      return vpcRepo.resetToken(filter.username)
-        .then(function () {
-          handleError(err);
-        });
+      return resetTokenAndRetry(err, filter.username);
     });
 }
 
