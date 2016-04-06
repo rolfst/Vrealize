@@ -54,32 +54,39 @@ function verifyCredentials(credentials) {
   });
 }
 
-function login(options) {
-  return verifyCredentials(options)
-  .spread(function (credentials, token) {
-    if (token) {return token;}
-    logger.debug('No token found for %s', credentials.username);
-    var vpcPayload = {
-      tenant: credentials.externalId,
-      username: credentials.username,
-      password: credentials.password
+function handleLogin(credentials, token) {
+  if (token) {return token;}
+  logger.debug('No token found for %s', credentials.username);
+  var vpcPayload = {
+    tenant: credentials.externalId,
+    username: credentials.username,
+    password: credentials.password
+  };
+  var postOptions = {method: 'POST', body: vpcPayload};
+  var httpOptions = _.defaults({}, loginDefaults, defaultHeaders, postOptions);
+  return httpRequest(httpOptions).then(function (body) {
+    logger.debug(body, 'Logged into VPC');
+    var storableCredentials = _.pick(credentials, ['username']);
+    var result = {
+      token: body.id,
+      expiry: moment(body.expires).toDate()
     };
-    var postOptions = {method: 'POST', body: vpcPayload};
-    var httpOptions = _.defaults({}, loginDefaults, defaultHeaders, postOptions);
-    return httpRequest(httpOptions).then(function (body) {
-      logger.debug(body, 'Logged into VPC');
-      var storableCredentials = _.pick(credentials, ['username']);
-      var result = {
-        token: body.id,
-        expiry: moment(body.expires).toDate()
-      };
-      var baseToken = _.merge(storableCredentials, result);
-      return Token.update({username: credentials.username}, baseToken, {upsert: true})
-      .then(function () {
-        return body.id;
-      });
+    var baseToken = _.merge(storableCredentials, result);
+    return Token.update({username: credentials.username}, baseToken, {upsert: true})
+    .then(function () {
+      return body.id;
     });
   });
+}
+
+function login(options) {
+  if (options.forceLogin === true) {
+    logger.debug('Login is forced');
+    return handleLogin(options, null);
+  } else {
+    return verifyCredentials(options)
+      .spread(handleLogin);
+  }
 }
 
 function listAsync(filter, pagination) {

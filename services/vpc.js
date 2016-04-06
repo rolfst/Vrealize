@@ -79,6 +79,7 @@ function list(payload, message, callback) {
   if (!filter.username || !filter.password || !filter.externalId) {
     return callback(getError(BAD_REQUEST, 'Please provide credentials'), null);
   }
+  filter.forceLogin = payload.forceLogin || false;
   var pagination = _.pick(payload, paginationProperties);
   pagination = _.defaults(pagination, defaultPagination);
   return retry(function () {
@@ -93,6 +94,7 @@ function get(payload, headers, callback) {
   if (!filter.username || !filter.password || !filter.externalId || !filter.resourceId) {
     return callback(getError(BAD_REQUEST, 'Please provide credentials'), null);
   }
+  filter.forceLogin = payload.forceLogin || false;
   return retry(function () {
     return tryGet(filter);
   }, { 'max_tries': vpcConfig.requestAttemptMax })
