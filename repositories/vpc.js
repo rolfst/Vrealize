@@ -49,7 +49,10 @@ function resetToken(username) {
 function verifyCredentials(credentials) {
   return Token.findOne({username: credentials.username}).then(function (token) {
 
-    if (!token) {return [credentials, null];}
+    if (!token) {
+      return [credentials, null];
+    }
+
     if (isBeforeExpiryCutoff(token.expiry)) {
       logger.debug('Found token %s', token.token);
       return [credentials, token.token];
