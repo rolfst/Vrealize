@@ -87,7 +87,7 @@ module.exports = {
     password: {
       doc: 'Base url to kpn vpc',
       format: String,
-      default: 'TemporaryWorkar0und!'}
+      default: '?UwRDV93sX7fRG?'}
   },
   proxyConfig: {
     enabled: {
