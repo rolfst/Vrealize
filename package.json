@@ -23,6 +23,7 @@
     "https-proxy-agent": "^1.0.0",
     "lodash": "^4.3.0",
     "logger-facade-console-plugin-nodejs": "^1.0.0",
+    "logger-facade-mongoose": "^1.0.0",
     "logger-facade-nodejs": "^1.0.0",
     "moment": "^2.10.6",
     "mongoose": "^4.3.1",
