@@ -55,7 +55,7 @@ describe('VPC Service Integration', function () {
     it('should return a list', function (done) {
       var expectedPayload = [stubs.compressed_windows_vm];
       var request = nock(vpcConfig.baseUrl)
-      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
+      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&withExtendedData=true')
       .reply(200, {content: [stubs.windows_vm]});
       target.list(credentials, null, function callback(error, value) {
         request.done();
@@ -71,7 +71,7 @@ describe('VPC Service Integration', function () {
       .post(loginPath)
       .reply(200, stubs.dummy_access_token);
       var request = nock(vpcConfig.baseUrl)
-      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
+      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&withExtendedData=true')
       .reply(200, {content: [stubs.windows_vm]});
       credentials.forceLogin = true;
       target.list(credentials, null, function callback(error, value) {
@@ -85,7 +85,7 @@ describe('VPC Service Integration', function () {
 
     it('should imediately fail when an error other then 401 happens', function (done) {
       var request = nock(vpcConfig.baseUrl)
-      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
+      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&withExtendedData=true')
       .reply(500);
       target.list(credentials, null, function callback(error) {
         request.done();
@@ -100,11 +100,11 @@ describe('VPC Service Integration', function () {
       .reply(200, stubs.dummy_access_token);
       var expectedPayload = [stubs.compressed_windows_vm];
       var request = nock(vpcConfig.baseUrl)
-      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
+      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&withExtendedData=true')
       .times(1)
       .reply(401);
       var request2 = nock(vpcConfig.baseUrl)
-      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
+      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&withExtendedData=true')
       .times(1)
       .reply(200, {content: [stubs.windows_vm]});
       target.list(credentials, null, function callback(error, value) {
@@ -122,11 +122,11 @@ describe('VPC Service Integration', function () {
       .post(loginPath)
       .reply(200, stubs.dummy_access_token);
       var request = nock(vpcConfig.baseUrl)
-      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
+      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&withExtendedData=true')
       .times(1)
       .reply(401);
       var request2 = nock(vpcConfig.baseUrl)
-      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
+      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&withExtendedData=true')
       .times(1)
       .reply(401, {
         statusCode: 401,
@@ -148,7 +148,7 @@ describe('VPC Service Integration', function () {
       .post(loginPath)
       .reply(200, stubs.dummy_access_token);
       var request = nock(vpcConfig.baseUrl)
-      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
+      .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&withExtendedData=true')
       .times(vpcConfig.requestAttemptMax)
       .reply(401);
       target.list(credentials, null, function callback(error) {
@@ -161,18 +161,6 @@ describe('VPC Service Integration', function () {
     });
 
     describe('pagination', function () {
-      it('should paginate using the default limit and offset parameter', function (done) {
-        var expectedPayload = [stubs.compressed_windows_vm];
-        var request = nock(vpcConfig.baseUrl)
-        .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=0&$top=10&withExtendedData=true')
-        .reply(200, {content: [stubs.windows_vm]});
-        target.list(credentials, null, function callback(error, value) {
-          request.done();
-          should.not.exist(error);
-          value.should.eql(expectedPayload);
-          done();
-        });
-      });
       it('should paginate using the limit and offset parameter', function (done) {
         var expectedPayload = [stubs.compressed_windows_vm];
         var request = nock(vpcConfig.baseUrl)
