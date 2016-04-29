@@ -91,9 +91,9 @@ function login(options) {
 
 function listAsync(filter, pagination) {
   var token = filter.token;
-  var paging = {
-    $skip: pagination.offset || 0,
-    $top: pagination.limit || '10'
+  var paging = _.isEmpty(pagination) ? {} : {
+    $skip: pagination.offset,
+    $top: pagination.limit
   };
   var options = _.defaults({}, filter, pagination);
   var resourceHeaders = _.defaults({}, defaultHeaders);

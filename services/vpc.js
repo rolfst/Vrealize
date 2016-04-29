@@ -7,7 +7,6 @@ var getError = require('../lib/error.js');
 var retry = require('bluebird-retry');
 var logger = require('../logger').getLogger('VPC Service');
 
-var defaultPagination = {limit: 10, offset: 0};
 var paginationProperties = ['limit', 'offset'];
 var requiredParams = ['externalId', 'username', 'password'];
 var BAD_REQUEST = 400;
@@ -81,7 +80,6 @@ function list(payload, message, callback) {
   }
   filter.forceLogin = payload.forceLogin || false;
   var pagination = _.pick(payload, paginationProperties);
-  pagination = _.defaults(pagination, defaultPagination);
   return retry(function () {
     return tryList(filter, pagination);
   }, { 'max_tries': vpcConfig.requestAttemptMax })
