@@ -15,6 +15,9 @@ var loginPath = '/identity/api/tokens';
 var resourcesPath = '%s/catalog-service/api/consumer/resources/';
 var resourcePath = '%s/catalog-service/api/consumer/resources/%s';
 
+var DEFAULT_LIMIT = 10;
+var DEFAULT_OFFSET = 0;
+
 var defaultHeaders = {
   'Content-Type': 'application/json'
 };
@@ -91,27 +94,27 @@ function login(options) {
 
 function listAsync(filter, pagination) {
   var token = filter.token;
-  var paging = _.isEmpty(pagination) ? {} : {
-    $skip: pagination.offset,
-    $top: pagination.limit
-  };
-  var options = _.defaults({}, filter, pagination);
+  var paging = {};
+  if (!_.isEmpty(pagination) && (_.has(pagination, 'offset') || _.has(pagination, 'limit'))) {
+    paging = {
+      $skip: pagination.offset || DEFAULT_OFFSET,
+      $top: pagination.limit || DEFAULT_LIMIT
+    };
+  }
   var resourceHeaders = _.defaults({}, defaultHeaders);
   resourceHeaders = _.defaults({}, resourceHeaders, {Authorization: 'Bearer ' + token});
-  var body = _.pick(options, []);
   var $filter = 'resourceType%2Fname%20eq%20%27Virtual%20Machine%27';
-  var tempQuery = _.defaults({}, body, paging, {withExtendedData: true, $filter: $filter});
+  var tempQuery = _.defaults({}, paging, {withExtendedData: true, $filter: $filter});
   var query = _.keys(tempQuery).sort().map(function (key) {
     return key + '=' + tempQuery[key];
   }).join('&');
   var httpOptions = _.defaults({},
-                               {body: body},
                                resourcesDefaults);
   httpOptions.url = resourcesDefaults.url + '?' + query;
   httpOptions.headers = resourceHeaders;
   return httpRequest(httpOptions)
   .then(function (response) {
-    logger.debug(body, 'VPC list has replied');
+    logger.debug(response.content, 'VPC list has replied');
     return response.content.map(toCompactPayload);
   });
 }
