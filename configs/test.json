@@ -1,0 +1,10 @@
+{
+  "database": {
+    "uri": "mongodb://localhost/vpc-test",
+    "log": false
+  },
+  "logging": null,
+  "proxyConfig": {
+    "enabled": false
+  }
+}

@@ -1,0 +1,14 @@
+---
+  env:
+    node: true
+    mocha: true
+  extends:
+    - "defaults/rules/eslint/best-practices/walmart"
+    - "defaults/rules/eslint/errors/airbnb"
+    - "defaults/configurations/walmart/es5-node"
+    - "defaults/rules/eslint/es6/off"
+  rules:
+    quotes: [2, "single"]
+    linebreak-style: [2, "unix"]
+    func-style: [2, "declaration"]
+    "filenames/filenames": [2, "^[a-z\\_\\.]+$"]

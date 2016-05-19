@@ -1,0 +1,31 @@
+{
+	"id": "98c454e5-0f9e-4694-b985-0b4c153d87b5",
+	"name": "avlpg7001a",
+	"resourceData": {
+		"entries": [{
+			"key": "MachineGuestOperatingSystem",
+			"value": {
+				"type": "string",
+				"value": "Windows Server 2012 R2 Standard"
+			}
+		}, {
+			"key": "MachineMemory",
+			"value": {
+				"type": "integer",
+				"value": 1024
+			}
+		}, {
+			"key": "MachineCPU",
+			"value": {
+				"type": "integer",
+				"value": 1
+			}
+		}, {
+			"key": "MachineStorage",
+			"value": {
+				"type": "integer",
+				"value": 100
+			}
+		}]
+	}
+}
