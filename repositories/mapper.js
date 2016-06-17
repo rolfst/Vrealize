@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('lodash');
+var toModel = require('../models/compute_instance');
 
 var VPC_RESOURCES = ['MachineMemory', 'MachineStorage', 'MachineCPU'];
 
@@ -45,13 +46,14 @@ function toComputeInstance(vpcInstance) {
   var operatingSystem = parseOperatingSystem(vpcInstance);
   var os = parseOS(operatingSystem);
 
-  return {
+  var instance = {
     id: vpcInstance.id,
     name: vpcInstance.name,
     operatingSystem: operatingSystem,
     os: os,
     resources: parseResources(vpcInstance)
   };
+  return toModel(instance);
 }
 
 /*function toCompactPayload(payload) {
