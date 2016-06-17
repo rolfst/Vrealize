@@ -56,17 +56,4 @@ function toComputeInstance(vpcInstance) {
   return toModel(instance);
 }
 
-/*function toCompactPayload(payload) {
-  var entries = _.filter(payload.resourceData.entries, function (entry) {
-    return _.includes(requiredEntries, entry.key);
-  });
-  return {
-    id: payload.id,
-    name: payload.name,
-    resourceData: {
-      entries: entries
-    }
-  };
-}*/
-
 module.exports = toComputeInstance;
