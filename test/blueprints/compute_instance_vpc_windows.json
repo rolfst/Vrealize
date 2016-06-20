@@ -1,0 +1,11 @@
+{
+  "id": "98c454e5-0f9e-4694-b985-0b4c153d87b5",
+  "name": "avlpg7001a",
+  "operatingSystem": "windows server 2012 r2",
+  "os": "windows",
+  "resources": {
+    "cpu": 1,
+    "memory": 1024,
+    "diskSpace": 100
+  }
+}

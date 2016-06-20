@@ -8,6 +8,8 @@ var dbUri = config.get('database').uri;
 var vpcConfig = config.get('vpcConfig');
 var logger = require('../../../logger');
 var stubs = require('../../stubs');
+var blueprints = require('../../blueprints/index');
+
 logger = logger.getLogger('vpc integration');
 
 var clearDB = require('mocha-mongoose');
@@ -53,7 +55,7 @@ describe('VPC Service Integration', function () {
     });
 
     it('should return a list', function (done) {
-      var expectedPayload = [stubs.compressed_windows_vm];
+      var expectedPayload = [blueprints.compute_instance_vpc_windows];
       var request = nock(vpcConfig.baseUrl)
       .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&withExtendedData=true')
       .reply(200, {content: [stubs.windows_vm]});
@@ -66,7 +68,7 @@ describe('VPC Service Integration', function () {
     });
 
     it('should login and return a list if forceLogin is set', function (done) {
-      var expectedPayload = [stubs.compressed_windows_vm];
+      var expectedPayload = [blueprints.compute_instance_vpc_windows];
       var loginRequest = nock(vpcConfig.baseUrl)
       .post(loginPath)
       .reply(200, stubs.dummy_access_token);
@@ -98,7 +100,7 @@ describe('VPC Service Integration', function () {
       var loginRequest = nock(vpcConfig.baseUrl)
       .post(loginPath)
       .reply(200, stubs.dummy_access_token);
-      var expectedPayload = [stubs.compressed_windows_vm];
+      var expectedPayload = [blueprints.compute_instance_vpc_windows];
       var request = nock(vpcConfig.baseUrl)
       .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&withExtendedData=true')
       .times(1)
@@ -162,7 +164,7 @@ describe('VPC Service Integration', function () {
 
     describe('pagination', function () {
       it('should paginate using the limit and offset parameter', function (done) {
-        var expectedPayload = [stubs.compressed_windows_vm];
+        var expectedPayload = [blueprints.compute_instance_vpc_windows];
         var request = nock(vpcConfig.baseUrl)
         .get(resourcesPath + '?$filter=resourceType%2Fname%20eq%20%27Virtual%20Machine%27&$skip=2&$top=1&withExtendedData=true')
         .reply(200, {content: [stubs.windows_vm]});
@@ -231,7 +233,7 @@ describe('VPC Service Integration', function () {
         target.get(params, null, function callback(error, value) {
           request.done();
           should.not.exist(error);
-          value.should.eql(stubs.compressed_windows_vm);
+          value.should.eql(blueprints.compute_instance_vpc_windows);
           done();
         });
       });
