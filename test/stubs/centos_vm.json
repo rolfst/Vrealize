@@ -1,0 +1,365 @@
+{
+  "@type": "CatalogResource",
+  "id": "fc1255c4-ba9b-47e0-9968-fe62f110b57c",
+  "iconId": "Infrastructure.CatalogItem.Machine.Virtual.vSphere",
+  "resourceTypeRef": {
+      "id": "Infrastructure.Virtual",
+      "label": "Virtual Machine"
+  },
+  "name": "8XHCTOS60000010",
+  "description": null,
+  "status": "ACTIVE",
+  "catalogItem": null,
+  "requestId": "61fcc2d8-1d37-4040-92f9-eed4843e074b",
+  "providerBinding": {
+      "bindingId": "684069a5-d0f0-421e-a5d7-d71f9ebeef2d",
+      "providerRef": {
+          "id": "8d01a5e8-afe1-4545-9c64-67971e5a0ee1",
+          "label": "Infrastructure Service"
+      }
+  },
+  "owners": [{
+      "tenantName": "ManagedServices",
+      "ref": "ManagedServices@vsphere.local",
+      "type": "USER",
+      "value": "Managed Services"
+  }],
+  "organization": {
+      "tenantRef": "ManagedServices",
+      "tenantLabel": "ManagedServices",
+      "subtenantRef": "c59c2124-e2f3-4993-bd1a-6e09a1323285",
+      "subtenantLabel": "ManagedServices"
+  },
+  "dateCreated": "2016-06-20T12:29:02.726Z",
+  "lastUpdated": "2016-06-20T12:29:06.626Z",
+  "hasLease": true,
+  "lease": {
+      "start": "2016-06-20T12:26:50.734Z"
+  },
+  "leaseForDisplay": null,
+  "hasCosts": true,
+  "costs": {
+      "leaseRate": {
+          "type": "moneyTimeRate",
+          "cost": {
+              "type": "money",
+              "currencyCode": "USD",
+              "amount": 0
+          },
+          "basis": {
+              "type": "timeSpan",
+              "unit": "DAYS",
+              "amount": 1
+          }
+      }
+  },
+  "costToDate": {
+      "type": "money",
+      "currencyCode": "USD",
+      "amount": 0
+  },
+  "totalCost": null,
+  "parentResourceRef": {
+      "id": "6ca2b8fe-bf53-4fb2-bd95-3592eb76ca35",
+      "label": "TPL_CentOS_6.7-96337832"
+  },
+  "hasChildren": false,
+  "operations": null,
+  "forms": {
+      "catalogResourceInfoHidden": true,
+      "details": {
+          "type": "extension",
+          "extensionId": "csp.places.iaas.item.details",
+          "extensionPointId": null
+      }
+  },
+  "resourceData": {
+      "entries": [{
+          "key": "MachineGuestOperatingSystem"
+      }, {
+          "key": "MachineMemory",
+          "value": {
+              "type": "integer",
+              "value": 4096
+          }
+      }, {
+          "key": "DISK_VOLUMES",
+          "value": {
+              "type": "multiple",
+              "elementTypeId": "COMPLEX",
+              "items": [{
+                  "type": "complex",
+                  "componentTypeId": "com.vmware.csp.component.iaas.proxy.provider",
+                  "componentId": null,
+                  "classId": "dynamicops.api.model.DiskInputModel",
+                  "typeFilter": null,
+                  "values": {
+                      "entries": [{
+                          "key": "DISK_INPUT_ID",
+                          "value": {
+                              "type": "string",
+                              "value": "DISK_INPUT_ID1"
+                          }
+                      }, {
+                          "key": "DISK_RESERVATION_POLICY",
+                          "value": {
+                              "type": "string",
+                              "value": "Generic Storage"
+                          }
+                      }, {
+                          "key": "DISK_CAPACITY",
+                          "value": {
+                              "type": "integer",
+                              "value": 40
+                          }
+                      }, {
+                          "key": "DISK_LABEL",
+                          "value": {
+                              "type": "string",
+                              "value": "Hard disk 1"
+                          }
+                      }]
+                  }
+              }]
+          }
+      }, {
+          "key": "MachineBlueprintName",
+          "value": {
+              "type": "string",
+              "value": "TPL_CentOS_6.7"
+          }
+      }, {
+          "key": "Suspend",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "MachineInterfaceType",
+          "value": {
+              "type": "string",
+              "value": "vSphere"
+          }
+      }, {
+          "key": "MachineCPU",
+          "value": {
+              "type": "integer",
+              "value": 2
+          }
+      }, {
+          "key": "MachineExpirationDate"
+      }, {
+          "key": "PowerOff",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "ConnectViaNativeVmrc",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "IS_COMPONENT_MACHINE",
+          "value": {
+              "type": "boolean",
+              "value": false
+          }
+      }, {
+          "key": "ChangeLease",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "MachineInterfaceDisplayName",
+          "value": {
+              "type": "string",
+              "value": "vSphere (vCenter)"
+          }
+      }, {
+          "key": "Destroy",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "MachineReservationName",
+          "value": {
+              "type": "string",
+              "value": "VPC Aalsmeer-ManagedServices"
+          }
+      }, {
+          "key": "NETWORK_LIST",
+          "value": {
+              "type": "multiple",
+              "elementTypeId": "COMPLEX",
+              "items": [{
+                  "type": "complex",
+                  "componentTypeId": "com.vmware.csp.component.iaas.proxy.provider",
+                  "componentId": null,
+                  "classId": "dynamicops.api.model.NetworkViewModel",
+                  "typeFilter": null,
+                  "values": {
+                      "entries": [{
+                          "key": "NETWORK_ADDRESS",
+                          "value": {
+                              "type": "string",
+                              "value": "192.168.0.14"
+                          }
+                      }, {
+                          "key": "NETWORK_NAME",
+                          "value": {
+                              "type": "string",
+                              "value": "vxw-dvs-35-virtualwire-52-sid-5032-8XH_Default Network Aalsmeer"
+                          }
+                      }, {
+                          "key": "NETWORK_MAC_ADDRESS",
+                          "value": {
+                              "type": "string",
+                              "value": "00:50:56:95:db:f1"
+                          }
+                      }]
+                  }
+              }]
+          }
+      }, {
+          "key": "Component",
+          "value": {
+              "type": "string",
+              "value": "CentOS_6.7"
+          }
+      }, {
+          "key": "Reset",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "ConnectViaVmrc",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "SNAPSHOT_LIST",
+          "value": {
+              "type": "multiple",
+              "elementTypeId": "COMPLEX",
+              "items": []
+          }
+      }, {
+          "key": "InstallTools",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "MachineStatus",
+          "value": {
+              "type": "string",
+              "value": "On"
+          }
+      }, {
+          "key": "MachineType",
+          "value": {
+              "type": "string",
+              "value": "Virtual"
+          }
+      }, {
+          "key": "MachineStorage",
+          "value": {
+              "type": "integer",
+              "value": 40
+          }
+      }, {
+          "key": "EXTERNAL_REFERENCE_ID",
+          "value": {
+              "type": "string",
+              "value": "vm-3596"
+          }
+      }, {
+          "key": "MachineGroupName",
+          "value": {
+              "type": "string",
+              "value": "ManagedServices"
+          }
+      }, {
+          "key": "ip_address",
+          "value": {
+              "type": "string",
+              "value": "192.168.0.14"
+          }
+      }, {
+          "key": "Reboot",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "ChangeOwner",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "Expire",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "machineId",
+          "value": {
+              "type": "string",
+              "value": "684069a5-d0f0-421e-a5d7-d71f9ebeef2d"
+          }
+      }, {
+          "key": "MachineName",
+          "value": {
+              "type": "string",
+              "value": "8XHCTOS60000010"
+          }
+      }, {
+          "key": "MachineDestructionDate"
+      }, {
+          "key": "Shutdown",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "Reconfigure",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "ConnectViaRdp",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "Reprovision",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "CreateSnapshot",
+          "value": {
+              "type": "boolean",
+              "value": true
+          }
+      }, {
+          "key": "MachineDailyCost",
+          "value": {
+              "type": "decimal",
+              "value": 0
+          }
+      }]
+  },
+  "destroyDate": null
+}

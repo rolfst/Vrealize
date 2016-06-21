@@ -141,6 +141,7 @@ describe('VPC Service Integration', function () {
         request.done();
         request2.done();
         loginRequest.done();
+        console.log(error); //eslint-disable-line no-console
         should.exist(error);
         done();
       });

@@ -23,7 +23,7 @@ var credentials = {
   externalId: vpcConfig.tenant,
   username: vpcConfig.username,
   password: vpcConfig.password,
-  resourceId: '01da1a54-26c8-495f-aff5-43d2e984b34f'
+  resourceId: 'd61513c9-deac-4d4b-a80c-592ddcd7c873'
 };
 
 var client = new ZSSClient(clientConfig);

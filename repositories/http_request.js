@@ -13,7 +13,7 @@ if (proxyConfig.enabled) {
 }
 
 function httpRequest(options) {
-  return request(_.merge({}, options, proxyOptions));
+  return request(_.merge({}, options, proxyOptions, {timeout: 5000}));
 }
 
 module.exports = httpRequest;

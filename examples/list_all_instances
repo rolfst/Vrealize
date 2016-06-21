@@ -14,7 +14,7 @@ var clientConfig = {
   // client identity (optional), defaults to 'client'
   identity: 'EXAMPLE_CLIENT',
   // client timeout in ms (optional), defaults to 1s
-  timeout: 5000
+  timeout: 7000
 };
 
 logger.debug('starting with \n%j', clientConfig);
@@ -22,7 +22,9 @@ logger.debug('starting with \n%j', clientConfig);
 var credentials = {
   externalId: vpcConfig.tenant,
   username: vpcConfig.username,
-  password: vpcConfig.password
+  password: vpcConfig.password,
+  limit: 20,
+  forceLogin: true
 };
 
 var client = new ZSSClient(clientConfig);
