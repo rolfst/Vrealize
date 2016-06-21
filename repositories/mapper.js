@@ -5,7 +5,7 @@ var toModel = require('../models/compute_instance');
 
 var VPC_RESOURCES = ['MachineMemory', 'MachineStorage', 'MachineCPU'];
 
-function parseOperatingSystem(vpcInstance) {
+function extractOperatingSystem(vpcInstance) {
   var entries = _.get(vpcInstance, 'resourceData.entries');
   var rawOSData = _.find(entries, function (entry) {
     return _.get(entry, 'key') === 'MachineBlueprintName';
@@ -29,7 +29,7 @@ function parseOperatingSystem(vpcInstance) {
 
 }
 
-function parseOS(operatingSystem) {
+function extractOS(operatingSystem) {
   var osLowerCase = _.toLower(operatingSystem);
   return _.replace(osLowerCase, /\s/g, '_');
 }
@@ -51,8 +51,8 @@ function parseResources(vpcInstance) {
 }
 
 function toComputeInstance(vpcInstance) {
-  var operatingSystem = parseOperatingSystem(vpcInstance);
-  var os = parseOS(operatingSystem);
+  var operatingSystem = extractOperatingSystem(vpcInstance);
+  var os = extractOS(operatingSystem);
 
   var instance = {
     id: vpcInstance.id,
