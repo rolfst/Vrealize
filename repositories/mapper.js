@@ -30,10 +30,8 @@ function parseOperatingSystem(vpcInstance) {
 }
 
 function parseOS(operatingSystem) {
-  if (operatingSystem.match(/windows/i)) {
-    return 'windows';
-  }
-  return 'linux';
+  var osLowerCase = _.toLower(operatingSystem);
+  return _.replace(osLowerCase, /\s/g, '_');
 }
 
 function parseResources(vpcInstance) {
