@@ -22,7 +22,9 @@ logger.debug('starting with \n%j', clientConfig);
 var credentials = {
   externalId: vpcConfig.tenant,
   username: vpcConfig.username,
-  password: vpcConfig.password
+  password: vpcConfig.password,
+  limit: 20,
+  forceLogin: true
 };
 
 var client = new ZSSClient(clientConfig);
