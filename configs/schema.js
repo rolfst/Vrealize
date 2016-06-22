@@ -106,7 +106,7 @@ module.exports = {
     timeout: {
       doc: 'Timeout for HTTP requests',
       format: 'int',
-      default: 1000
+      default: 2000
     }
   }
 };
